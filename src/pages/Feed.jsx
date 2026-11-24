@@ -400,11 +400,11 @@ export default function Feed() {
             {/* Nov 10 (Jade): Emergency Response is one tap from here too. */}
             <EmergencyDoor />
 
-            {!simple && (
-                <button type="button" className="btn btn-outline btn-full feed-filter-toggle" aria-expanded={filtersOpen} aria-controls="feed-filters" onClick={() => setFiltersOpen((o) => !o)}>
-                    {t('Filter and sort')} <span aria-hidden="true">{filtersOpen ? '\u25B4' : '\u25BE'}</span>
-                </button>
-            )}
+            {/* Nov 24 (Jade): Simple view gets Filter and sort too (closed until tapped),
+                so it can do everything the full view can. */}
+            <button type="button" className="btn btn-outline btn-full feed-filter-toggle" aria-expanded={filtersOpen} aria-controls="feed-filters" onClick={() => setFiltersOpen((o) => !o)}>
+                {t('Filter and sort')} <span aria-hidden="true">{filtersOpen ? '\u25B4' : '\u25BE'}</span>
+            </button>
             <div className={'feed-filters' + (filtersOpen ? ' feed-filters-open' : '')} id="feed-filters">
                 {view === 'requests' ? (
                     <select className="feed-filter-select" value={filterSkill} onChange={e => setFilterSkill(e.target.value)} aria-label={t('Filter by skill')}>
@@ -435,7 +435,7 @@ export default function Feed() {
                     </select>
                 )}
                 <button className="btn btn-sm btn-outline" onClick={loadFeed} aria-label={t('Refresh feed')}>&#x21bb; {t('Refresh')}</button>
-                {!simple && <select className="feed-filter-select" aria-label={t('Sort')} value={sortBy} onChange={e => setSortBy(e.target.value)}><option value="urgency">{t('Sort: Urgency')}</option><option value="newest">{t('Sort: Newest')}</option></select>}
+                {<select className="feed-filter-select" aria-label={t('Sort')} value={sortBy} onChange={e => setSortBy(e.target.value)}><option value="urgency">{t('Sort: Urgency')}</option><option value="newest">{t('Sort: Newest')}</option></select>}
             </div>
 
             </div>

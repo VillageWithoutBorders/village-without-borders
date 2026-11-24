@@ -111,6 +111,15 @@ export default function YourCorner() {
       <h2 id={hid} className="corner-group-h">{t('Your things')}</h2>
       <nav aria-labelledby={hid} className="corner-list">
         {tools.length > 0 && rolesRow('corner-roles-in-list')}
+        {/* Nov 24 (Jade): Simple view has no top-bar Cottage button, so the cottage is here:
+            the garden, its name, and who can visit. */}
+        {simple && (
+          <Link to="/cottage" className="corner-item">
+            <span aria-hidden="true"><Icon name="cottage" /></span>
+            <span className="corner-item-text">{t('My Cottage')}<small>{t('Your garden, and who can visit')}</small></span>
+            <span className="corner-arrow" aria-hidden="true">›</span>
+          </Link>
+        )}
         <Link to="/trail" className="corner-item">
           <span aria-hidden="true"><Icon name="scroll" /></span>
           <span className="corner-item-text">{t('My story')}<small>{t('The path you have walked so far')}</small></span>

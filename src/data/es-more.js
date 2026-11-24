@@ -354,6 +354,7 @@ const more = {
   '{n} offers waiting for an answer': '{n} ofrecimientos esperando respuesta',
   'Offered {date}': 'Ofrecido el {date}',
   'Go to a village': 'Ir a una aldea',
+  'Your garden, and who can visit': 'Su jardín, y quién puede visitar',
   'Take back your offer to help?': '¿Retirar su ofrecimiento de ayuda?',
   'Take it back': 'Retirarla',
   '{n}/{max} accepted': '{n}/{max} aceptados',
