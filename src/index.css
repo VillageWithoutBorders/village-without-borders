@@ -6255,6 +6255,8 @@ a.btn { text-decoration: none; }
 .hub-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0.75rem 0; }
 .hub-tabs > button { width: 100%; }
 @media (min-width: 600px) { .hub-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Nov 24: Simple view has four tabs, so two rows of two at every width. */
+html.simple .hub-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .msg-new-row { display: flex; align-items: flex-start; gap: 0.5rem; }
 .msg-new-main { flex: 1; min-width: 0; }
 .msg-gear { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 10px; border: 2px solid var(--border); background: var(--white); cursor: pointer; }

@@ -40,10 +40,14 @@ export default function ConnectHub() {
   const simple = useSimpleView()
   const t = useT()
 
-  // Simple view: just private messages and Cottage Chats.
+  // Simple view: private messages, group chats, the village chat (where app-wide
+  // Announcements are too), and Connections (Nov 24, Jade: Simple and full accounts
+  // must be able to find and reach each other the same way).
   const tabs = simple ? [
     { key: 'messages', label: 'Private messages', badge: chatUnread },
     { key: 'cottage', label: 'Group chats' },
+    { key: 'villages', label: 'Village chats', badge: villageUnread },
+    { key: 'connections', label: 'Connections' },
   ] : [
     { key: 'messages', label: 'Chats', badge: chatUnread },
     { key: 'villages', label: 'Village Square', badge: villageUnread },
