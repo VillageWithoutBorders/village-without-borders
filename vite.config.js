@@ -84,7 +84,8 @@ export default defineConfig({
         shortcuts: [
           { name: 'Find help', short_name: 'Find help', description: 'Food, housing, bills, rides, and more near you', url: '/community/resources', icons: [{ src: '/icons/shortcut-heart-hands.png', sizes: '96x96', type: 'image/png' }] },
           { name: 'Ask for help', short_name: 'Ask', description: 'Ask your neighbors for a hand', url: '/ask', icons: [{ src: '/icons/shortcut-raise-hand.png', sizes: '96x96', type: 'image/png' }] },
-          { name: 'Show my QR', short_name: 'My QR', description: 'Connect with someone in person', url: '/my-code', icons: [{ src: '/icons/shortcut-phone-add.png', sizes: '96x96', type: 'image/png' }] },
+          // Nov 24 (Jade): one "QR code" item opens a choice: show my code, or scan one.
+          { name: 'QR code', short_name: 'QR code', description: 'Show your code, or scan a neighbor\'s code', url: '/me?qr=1', icons: [{ src: '/icons/shortcut-phone-add.png', sizes: '96x96', type: 'image/png' }] },
           { name: 'My village', short_name: 'Village', description: 'Your cottage and your home village', url: '/village', icons: [{ src: '/icons/shortcut-houses.png', sizes: '96x96', type: 'image/png' }] }
         ]
       },

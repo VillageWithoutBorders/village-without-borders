@@ -6058,6 +6058,8 @@ const more = {
   "Point the camera at your neighbor's code. It connects you by itself.": 'Apunte la cámara al código de su vecino. Los conecta solo.',
   'The camera is turned off for VWB. You can turn it on in your browser settings, or use the steps below.': 'La cámara está apagada para VWB. Puede encenderla en los ajustes del navegador, o usar los pasos de abajo.',
   'We could not open the camera. Use the steps below instead.': 'No pudimos abrir la cámara. Use los pasos de abajo.',
+  'QR code': 'Código QR',
+  'Only connect with someone you have met.': 'Conéctese solo con alguien que conoce en persona.',
 }
 
 export default more

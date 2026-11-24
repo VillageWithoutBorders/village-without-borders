@@ -41,6 +41,21 @@ export default function YourCorner() {
   const rolesBtn = useRef(null)
   const [scanOpen, setScanOpen] = useState(false)
   const scanBtn = useRef(null)
+  // Nov 24 (Jade): the app icon's press-and-hold menu has "QR code". It opens /me?qr=1,
+  // which shows two choices: Show my code, or Scan a code (/me?scan=1 opens the scanner
+  // itself). The ?qr=1 is taken off the address first, so going back or reloading
+  // does not open it again.
+  const [qrChoice, setQrChoice] = useState(false)
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    const scan = q.get('scan') === '1'
+    const qr = q.get('qr') === '1'
+    if (!scan && !qr) return
+    q.delete('scan'); q.delete('qr')
+    const rest = q.toString()
+    window.history.replaceState(window.history.state, '', window.location.pathname + (rest ? '?' + rest : '') + window.location.hash)
+    if (scan) setScanOpen(true); else setQrChoice(true)
+  }, [])
   // Your avatar from the avatar builder, or the same drawn avatar others see. The letter shows only if it can't load.
   const avatarSrc = drawAvatar(profile?.avatar_url, user?.id)
   const name = profile?.display_name || t('Neighbor')
@@ -206,6 +221,9 @@ export default function YourCorner() {
       <ToolsSheet id="corner-roles-title" title={t('Your roles')} rows={roleRows}
         onClose={(refocus) => { setRolesOpen(false); if (refocus && rolesBtn.current && rolesBtn.current.focus) rolesBtn.current.focus() }} />
     )}
+    {qrChoice && <QrChoice onClose={() => setQrChoice(false)}
+      onShow={() => { setQrChoice(false); openMyQr() }}
+      onScan={() => { setQrChoice(false); setScanOpen(true) }} />}
     {scanOpen && <ScanHelp onClose={() => { setScanOpen(false); if (scanBtn.current && scanBtn.current.focus) scanBtn.current.focus() }} />}
   </>
 
@@ -229,6 +247,40 @@ export default function YourCorner() {
     </div>
     {sheets}
     </>
+  )
+}
+
+// QR code (Nov 24, Jade): from the app icon's press-and-hold menu. Two big choices.
+function QrChoice({ onClose, onShow, onScan }) {
+  const t = useT()
+  const headRef = useRef(null)
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
+  useEffect(() => {
+    if (headRef.current) headRef.current.focus()
+    function onKey(e) { if (e.key === 'Escape') closeRef.current() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+  useBackCloses(closeRef)
+  return (
+    <div className="tools-shade qr-shade" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="tools-sheet qr-sheet" role="dialog" aria-modal="true" aria-labelledby="qr-choice-h">
+        <div className="qr-sheet-top">
+          <h2 id="qr-choice-h" tabIndex={-1} ref={headRef}>{t('QR code')}</h2>
+          <button type="button" className="btn btn-outline qr-sheet-close" onClick={onClose}>{t('Close')}</button>
+        </div>
+        <div className="qr-choice">
+          <button type="button" className="btn btn-primary btn-full qr-choice-btn" onClick={onShow}>
+            <span aria-hidden="true"><Icon name="qr-code" /></span> {t('Show my code to connect')}
+          </button>
+          <button type="button" className="btn btn-primary btn-full qr-choice-btn" onClick={onScan}>
+            <span aria-hidden="true"><Icon name="phone" /></span> {t('Scan a code')}
+          </button>
+        </div>
+        <p className="mycode-lead">{t('Only connect with someone you have met.')}</p>
+      </div>
+    </div>
   )
 }
 

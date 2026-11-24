@@ -8496,3 +8496,7 @@ html.text-largest .plan-slot-row { grid-template-columns: 1fr; }
 .scan-cam { position: relative; width: 100%; max-width: 22rem; margin: 0.5rem auto 0.75rem; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden; background: #000; }
 .scan-cam video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .scan-frame { position: absolute; inset: 18%; border: 3px solid #e8b84a; border-radius: 12px; box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.35); pointer-events: none; }
+
+/* Nov 24: QR code choice from the app icon menu. Two big buttons, stacked. */
+.qr-choice { display: grid; gap: 0.75rem; margin: 0.75rem 0; }
+.qr-choice-btn { min-height: 56px; gap: 0.5rem; font-size: 1.05rem; }
