@@ -233,12 +233,37 @@ export default function YourCorner() {
 }
 
 // Scan a code (Nov 10, Jade; Nov 24: opens the camera right here).
-// Where the phone's browser can read codes (Chrome and Brave on Android), the camera opens
-// inside the pop-up and a neighbor's code connects you right away. Nothing is saved or sent:
-// the picture stays on the phone, and only a VWB connect code is ever followed.
-// Where it can't (iPhone, Firefox, most computers), the three steps stay.
-const canScan = typeof window !== 'undefined' && 'BarcodeDetector' in window
+// The camera opens inside the pop-up and a neighbor's code connects you right away.
+// Nothing is saved or sent: the picture stays on the phone, and only a VWB connect code
+// is ever followed. Android Chrome reads codes by itself (BarcodeDetector). Everywhere else
+// (iPhone, Firefox, computers) the small jsQR reader loads, only when Scan a code opens.
+// With no camera at all, the three steps stay.
+const canScan = typeof window !== 'undefined'
   && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+
+// Reads a QR code from the video. Returns a function: video -> list of found texts.
+async function makeReader() {
+  if ('BarcodeDetector' in window) {
+    try {
+      const d = new window.BarcodeDetector({ formats: ['qr_code'] })
+      return async (v) => (await d.detect(v)).map((f) => f.rawValue)
+    } catch (err) { console.error('Built-in code reader could not start:', err) }
+  }
+  const jsQR = (await import('jsqr')).default
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  return async (v) => {
+    // A smaller copy reads faster on slow phones and is still sharp enough for a code.
+    const scale = Math.min(1, 640 / Math.max(v.videoWidth, v.videoHeight))
+    const w = Math.round(v.videoWidth * scale)
+    const h = Math.round(v.videoHeight * scale)
+    if (!w || !h) return []
+    canvas.width = w; canvas.height = h
+    ctx.drawImage(v, 0, 0, w, h)
+    const found = jsQR(ctx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: 'dontInvert' })
+    return found && found.data ? [found.data] : []
+  }
+}
 
 // Only our own connect links: /connect/<code> on this app. Anything else is ignored.
 function connectCode(raw) {
@@ -273,12 +298,7 @@ function ScanHelp({ onClose }) {
     let stream = null
     let timer = 0
     let stopped = false
-    let detector
-    try { detector = new window.BarcodeDetector({ formats: ['qr_code'] }) } catch (err) {
-      console.error('Code reader could not start:', err)
-      setState('steps')
-      return undefined
-    }
+    let read = null
     function stop() {
       stopped = true
       clearTimeout(timer)
@@ -287,20 +307,30 @@ function ScanHelp({ onClose }) {
     async function look() {
       if (stopped) return
       const v = videoRef.current
-      if (v && v.readyState >= 2) {
+      if (v && v.readyState >= 2 && read) {
         try {
-          const found = await detector.detect(v)
-          for (const f of found) {
-            const code = connectCode(f.rawValue)
+          const found = await read(v)
+          for (const raw of found) {
+            const code = connectCode(raw)
             if (code) { stop(); closeRef.current(); navigate('/connect/' + code); return }
-            if (f.rawValue) setState('notours')
+            if (raw) setState('notours')
           }
         } catch (err) { console.error('Code reader failed:', err) }
       }
       timer = setTimeout(look, 250)
     }
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    makeReader()
+      .then((r) => {
+        read = r
+        return navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+          .catch((err) => {
+            console.error('Camera did not open:', err)
+            if (!stopped) setState(err && (err.name === 'NotAllowedError' || err.name === 'SecurityError') ? 'blocked' : 'nocam')
+            return null
+          })
+      })
       .then((s) => {
+        if (!s) return
         if (stopped) { s.getTracks().forEach((tr) => tr.stop()); return }
         stream = s
         const v = videoRef.current
@@ -309,8 +339,9 @@ function ScanHelp({ onClose }) {
         look()
       })
       .catch((err) => {
-        console.error('Camera did not open:', err)
-        setState(err && (err.name === 'NotAllowedError' || err.name === 'SecurityError') ? 'blocked' : 'nocam')
+        // The code reader did not load (often no signal). The three steps still work.
+        console.error('Code reader did not load:', err)
+        if (!stopped) setState('nocam')
       })
     return stop
   }, [navigate])
