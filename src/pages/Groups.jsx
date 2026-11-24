@@ -241,7 +241,10 @@ export default function Groups({ embedded = false, show: showProp = 'all', onOpe
       {!loading && (
         <section className="groups-mine" aria-labelledby="mygroups-heading">
           <h2 id="mygroups-heading" className="groups-section">{!embedded ? t('Your chats') : show === 'campfires' ? t('Your Campfires') : show === 'cottage' ? t('Your Cottage Chats') : t('Your chats')}</h2>
-          {orderedGroups.length === 0 && <p className="groups-empty">{show === 'campfires' ? t("You're not at any Campfires yet.") : t("You're not in any chats yet. Start a Cottage Chat, or ask a friend to invite you.")}</p>}
+          {orderedGroups.length === 0 && <p className="groups-empty">{show === 'campfires' ? t("You're not at any Campfires yet. Campfires are small chats inside a village or group.") : t("You're not in any chats yet. Start a Cottage Chat, or ask a friend to invite you.")}</p>}
+          {orderedGroups.length === 0 && show === 'campfires' && (
+            <button type="button" className="btn btn-outline btn-full" style={{ minHeight: '44px' }} onClick={() => navigate('/find-village')}>{t('Find your village')}</button>
+          )}
           {orderedGroups.map(({ g, nested }) => (
             <button key={g.id} type="button" className={'groups-row' + (selectedId === g.id ? ' hub-row-on' : '')} aria-current={selectedId === g.id ? 'true' : undefined} style={{ ...(nested ? { marginLeft: '1.25rem', width: 'calc(100% - 1.25rem)' } : {}), ...(newBoards.has(String(g.id)) ? { borderLeft: '4px solid var(--danger)' } : {}) }} onClick={() => openGroup(g.id)}>
               <span className="groups-row-name">{nested ? '\u21B3 ' : ''}{g.pinned ? <><Icon name="pushpin" />{' '}</> : ''}{campfires.has(g.id) ? <><Icon name="campfire" />{' '}</> : g.village_kind === 'sidechat' ? <><Icon name="campfire" />{' '}</> : ''}{g.name}{g.steward_id === user.id ? <span className="group-steward-badge">{t('Steward')}</span> : null}{newBoards.has(String(g.id)) && <span className="hub-tab-count" style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{t('New posts')}</span>}</span>

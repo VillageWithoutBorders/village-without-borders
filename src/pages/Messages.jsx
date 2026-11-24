@@ -879,6 +879,9 @@ export default function Messages({ embedded = false, onOpen, selectedId }) {
         <div style={{ textAlign: 'center', padding: '2rem' }}>
           <p style={{ fontWeight: 700, marginBottom: '0.25rem' }}>{t(activeFolder === 'all' ? 'No messages yet' : activeFolder === 'archived' ? 'No archived messages' : activeFolder === 'unread' ? 'You\u2019re all caught up' : activeFolder === 'followup' ? 'Nothing to follow up on' : 'No messages in this folder')}</p>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{t(activeFolder === 'all' ? 'When you help someone or someone helps you, your conversations will show up here.' : activeFolder === 'unread' ? 'No new messages right now.' : activeFolder === 'followup' ? 'Tap \u22EF on a conversation and pick Follow up to save it here.' : 'Tap the menu on a conversation to move it here.')}</p>
+          {activeFolder === 'all' && (
+            <button type="button" className="btn btn-primary" style={{ minHeight: '44px', marginTop: '0.75rem' }} onClick={() => navigate('/skillshare')}>{t('See who needs a hand')}</button>
+          )}
         </div>
       )}
 

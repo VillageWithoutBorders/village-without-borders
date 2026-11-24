@@ -734,7 +734,7 @@ export default function ActiveTasks() {
   const EMPTY = {
     requests: ['No open requests', 'When you ask for help, your request waits here until a neighbor says yes.', 'Ask for Help', '/ask'],
     active: ['No tasks in progress', 'When someone takes your request, or you help a neighbor, it shows here.', 'See who needs help', '/skillshare'],
-    archived: ['Nothing done yet', 'Finished tasks move here once you have both said how it went.', null, null],
+    archived: ['Nothing done yet', 'Finished tasks move here once you have both said how it went.', 'See who needs help', '/skillshare'],
   }
   const MINE_TABS = [
     { id: 'requests', label: 'Requests', icon: '\u{1F198}' },

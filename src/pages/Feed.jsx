@@ -573,6 +573,7 @@ export default function Feed() {
                         <span className="feed-empty-icon" aria-hidden="true"><Icon name="gift" size={64} /></span>
                         <h2>{t('No offers right now')}</h2>
                         <p>{t('Be the first to share something with your neighbors.')}</p>
+                        <button type="button" className="btn btn-primary" style={{ minHeight: '44px', marginTop: '0.75rem' }} onClick={() => navigate('/post-offer')}>{t('Post an offer')}</button>
                     </div>
                 ) : (
                     <div className="feed-list">

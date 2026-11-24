@@ -28,6 +28,7 @@ import { useTitleRow } from '../hooks/useTitleRow'
 import { readReadButton } from '../utils/readButton'
 import { usePrefsRefresh } from '../hooks/usePrefsRefresh'
 import { resyncPush } from '../utils/pushUtils'
+import { setNewAccount } from '../utils/plainWords'
 
 export default function Layout() {
   const { pathname, search, key } = useLocation()
@@ -37,6 +38,11 @@ export default function Layout() {
   // after Find your village. "Skip setup for now" on that page ends it.
   const setupNext = needsFullSetup(user, profile) && pathname !== '/setup' && !firstRunPaused(pathname)
   useEffect(() => { if (setupNext) navigate('/setup', { replace: true }) }, [setupNext]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Plain words (Nov 24): on by themselves for an account's first 14 days.
+  useEffect(() => {
+    const made = profile?.created_at ? new Date(profile.created_at).getTime() : 0
+    setNewAccount(made > 0 && Date.now() - made < 14 * 24 * 60 * 60 * 1000)
+  }, [profile?.created_at])
   // The Admin inbox count shows on My Corner in the top bar (Nov 10). Role tools live there.
   const { total: adminWaiting, urgent: adminUrgent } = useAdminInbox()
   const simple = useSimpleView()
