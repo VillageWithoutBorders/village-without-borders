@@ -44,7 +44,9 @@ function build() {
       // Longest spelling first, so "Campfires" wins over "Campfire".
       const forms = [...w[lang]].sort((a, b) => b.length - a.length).map(esc).join('|')
       // A whole word only, and not when a ( ) meaning is already there.
-      built[lang].push({ re: new RegExp('(^|[^\\p{L}])(' + forms + ')(?![\\p{L}])(?!\\s*\\()', 'u'), plain: w.plain[i] })
+      // The second spelling is the one for more than one ("Campfires"), so it gets the "many" meaning.
+      const many = w[lang][1]
+      built[lang].push({ re: new RegExp('(^|[^\\p{L}])(' + forms + ')(?![\\p{L}])(?!\\s*\\()', 'u'), plain: w.plain[i], many: many && w.many ? { form: many, plain: w.many[i] } : null })
     }
   }
   return built
@@ -58,7 +60,7 @@ export function addPlain(s, lang) {
   let out = s
   for (const w of list) {
     out = out.replace(w.re, (m, before, name) => {
-      held.push(name + ' (' + w.plain + ')')
+      held.push(name + ' (' + (w.many && name === w.many.form ? w.many.plain : w.plain) + ')')
       return before + '\u0000' + (held.length - 1) + '\u0000'
     })
   }
