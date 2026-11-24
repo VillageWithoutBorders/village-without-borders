@@ -5376,6 +5376,8 @@ const more = {
   '{name} village': 'Aldea de {name}',
   // ---- Nov 10: Round D (Ask, Offer, Calendar) ----
   'Or find a resource yourself': 'O busque un recurso usted mismo',
+  'Find a resource yourself': 'Busque un recurso usted mismo',
+  'I need the help myself': 'Yo necesito la ayuda',
   'Food, bills, rides, hotlines, and more near you': 'Comida, facturas, transporte, líneas de ayuda y más cerca de usted',
   'Food, bills, rides, hotlines, and more near you, without waiting for a neighbor.': 'Comida, facturas, transporte, líneas de ayuda y más cerca de usted, sin esperar a un vecino.',
   'Nothing done yet': 'Nada terminado todavía',

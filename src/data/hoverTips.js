@@ -256,7 +256,7 @@ export const TEXT_TIPS = {
   'Needs and offers': 'What this group needs, and what it offers.',
   'Post an offer': 'Share something you can give or do for neighbors.',
   '+ Post an offer': 'Share something you can give or do for neighbors.',
-  'Or find a resource yourself': 'Food, bills, rides, hotlines, and more near you, without waiting for a neighbor.',
+  'Find a resource yourself': 'Food, bills, rides, hotlines, and more near you, without waiting for a neighbor.',
   'Tasks you finished': 'Help you finished with neighbors.',
   'Pause': 'Stop for now. Go on picks up where you stopped.',
   'Go on': 'Pick up reading where you stopped.',
