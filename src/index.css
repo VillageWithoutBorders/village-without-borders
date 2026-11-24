@@ -8468,3 +8468,9 @@ html.text-largest .plan-slot-row { grid-template-columns: 1fr; }
 }
 .alert-choices > .alert-choice, .alert-choices .news-email-switch { margin-left: 10px; margin-right: 10px; }
 .alert-choices .news-email-switch { margin-bottom: 10px; }
+
+/* Nov 24 (Jade): Messages. Your offers waiting for an answer are one row that opens the list. */
+.msg-out-toggle { display: flex; align-items: center; gap: 0.6rem; width: 100%; min-height: 48px; padding: 0.5rem 1rem; margin-bottom: 0.5rem;
+  border: 1px solid var(--warn); border-radius: 12px; background: var(--warn-bg); color: var(--text-strong); font: inherit; font-weight: 700; text-align: left; cursor: pointer; }
+.msg-out-toggle .msg-out-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.msg-out-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }

@@ -69,6 +69,8 @@ export default function Messages({ embedded = false, onOpen, selectedId }) {
   const [pendingOffers, setPendingOffers] = useState([])
   const [processingOffer, setProcessingOffer] = useState(null)
   const [myOutgoingOffers, setMyOutgoingOffers] = useState([])
+  // Nov 24 (Jade): your offers waiting for an answer fold into one row, so chats show first.
+  const [outOpen, setOutOpen] = useState(false)
 
   // With chats opening on the right, picking one changes the address, so the list
   // loads once and then refreshes quietly when the open chat changes.
@@ -825,15 +827,17 @@ export default function Messages({ embedded = false, onOpen, selectedId }) {
       {/* ========== Your Pending Offers (helper side) ========== */}
       {myOutgoingOffers.length > 0 && (
         <div style={{ marginBottom: '1.25rem' }}>
-          <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--gold)', marginBottom: '0.5rem' }}>
-            <Icon name="hourglass" /> {t('Your Pending Offers ({n})', { n: myOutgoingOffers.length })}
-          </div>
-          {myOutgoingOffers.map(offer => (
+          <button type="button" className="msg-out-toggle" aria-expanded={outOpen} onClick={() => setOutOpen((o) => !o)}>
+            <Icon name="hourglass" />
+            <span className="msg-out-text">{myOutgoingOffers.length === 1 ? t('1 offer waiting for an answer') : t('{n} offers waiting for an answer', { n: myOutgoingOffers.length })}</span>
+            <span aria-hidden="true">{outOpen ? '\u25B4' : '\u25BE'}</span>
+          </button>
+          {outOpen && myOutgoingOffers.map(offer => (
             <div key={offer.id} style={{ background: 'var(--warn-bg)', border: '1px solid #5a4a2a', borderRadius: '12px', padding: '0.85rem 1rem', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
               <div>
                 <div style={{ color: 'var(--text-strong)', fontWeight: 600, fontSize: '0.9rem' }}>{t(offer.skill_needed)}</div>
                 <div style={{ color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
-                  {offer.for_name ? t('For {name}, posted by {poster}', { name: offer.for_name, poster: offer.requester_name }) : t('For {name}', { name: offer.requester_name })} &middot; {t('Waiting for response')}
+                  {offer.for_name ? t('For {name}, posted by {poster}', { name: offer.for_name, poster: offer.requester_name }) : t('For {name}', { name: offer.requester_name })} &middot; {t('Offered {date}', { date: new Date(offer.created_at).toLocaleDateString(getLang() === 'es' ? 'es' : 'en-US', { month: 'short', day: 'numeric' }) })}
                 </div>
               </div>
               <button

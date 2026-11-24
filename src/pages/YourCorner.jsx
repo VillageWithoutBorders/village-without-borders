@@ -105,12 +105,12 @@ export default function YourCorner() {
   )
 
   // Your things (Nov 10). On a computer it sits on the right, under the room.
-  // Nov 22 (Jade): on phones, Your roles joins My story here.
+  // Nov 22 (Jade): Your roles joins My story here (phones and computers).
   const thingsList = (hid) => (
     <section className="corner-group" aria-labelledby={hid}>
       <h2 id={hid} className="corner-group-h">{t('Your things')}</h2>
       <nav aria-labelledby={hid} className="corner-list">
-        {!split && tools.length > 0 && rolesRow('corner-roles-in-list')}
+        {tools.length > 0 && rolesRow('corner-roles-in-list')}
         <Link to="/trail" className="corner-item">
           <span aria-hidden="true"><Icon name="scroll" /></span>
           <span className="corner-item-text">{t('My story')}<small>{t('The path you have walked so far')}</small></span>
@@ -120,8 +120,8 @@ export default function YourCorner() {
     </section>
   )
 
-  // Your roles. Computers: its own row beside Settings. Phones: inside Your things (above).
-  const roles = split && tools.length > 0 && rolesRow('corner-roles-row')
+  // Your roles sits inside Your things everywhere (Nov 24, Jade: computers match phones).
+  const roles = null
 
   const page = (
     <div className={'corner-page' + (split ? ' corner-page-full' : '')}>

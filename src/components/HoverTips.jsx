@@ -64,6 +64,14 @@ function routeTip(a) {
   return best ? t(best[1]) : ''
 }
 
+// Nov 24 (Jade): a note that only repeats the words already on the button adds nothing,
+// so hovering or long-pressing skips it. The ? button still shows it.
+function bare(s) { return String(s || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim() }
+function repeatsWords(el, text) {
+  const note = bare(text)
+  return !!note && bare(el.innerText || el.textContent).includes(note)
+}
+
 function tipFor(el) {
   if (el.dataset.tip) return el.dataset.tip
   // Take over the browser's own title note so two notes never show at once.
@@ -147,7 +155,7 @@ export default function HoverTips() {
       current.current = el
       if (!el || el.disabled || el.closest('[data-no-tip]') || el.getAttribute('aria-expanded') === 'true') { setTip(null); return }
       const text = tipFor(el)
-      if (!text) { setTip(null); return }
+      if (!text || repeatsWords(el, text)) { setTip(null); return }
       timer.current = setTimeout(() => {
         if (current.current !== el || !el.isConnected) return
         setTip({ text, rect: el.getBoundingClientRect() })
@@ -209,7 +217,7 @@ export default function HoverTips() {
       const el = e.target.closest && e.target.closest(PICK)
       if (!el || el.disabled || el.closest(NO_HOLD) || el.closest('[data-no-tip]')) return
       const text = tipFor(el)
-      if (!text) return
+      if (!text || repeatsWords(el, text)) return
       press = { el, text, x: e.clientX, y: e.clientY, timer: setTimeout(fire, HOLD) }
     }
     const move = (e) => { if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 10) drop() }

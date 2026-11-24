@@ -505,6 +505,21 @@ export default function World() {
             : t(myRealOrgs.length ? 'Groups are people working together, not places. A gold line joins two that chose to connect.' : 'You do not belong to a group yet. Tap one to see what it does.')}
       </p>
 
+      {/* Nov 24 (Jade): your villages as a plain list too, not only circles on the globe,
+          for screen readers and for anyone who doesn't read maps easily. */}
+      {net === 'villages' && villages && villages.some((v) => v.is_mine) && (
+        <section className="wd-fires" aria-labelledby="wd-mine-h">
+          <h3 id="wd-mine-h" className="wd-fires-h">{t('Go to a village')}</h3>
+          <div className="wd-fires-list">
+            {villages.filter((v) => v.is_mine).map((v) => (
+              <button key={'mine' + v.id} type="button" className="wd-fire" onClick={() => navigate('/village/' + v.id)}>
+                <Icon name="houses" /> <span>{v.name}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       {net === 'villages' && view && view.lines.length > 0 && (
         <section className="wd-fires" aria-labelledby="wd-fires-h">
           <h3 id="wd-fires-h" className="wd-fires-h">{t('Sister Campfires')}</h3>
