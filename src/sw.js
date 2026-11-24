@@ -15,7 +15,19 @@ precacheAndRoute(self.__WB_MANIFEST)
 // Opening VWB with no signal (Nov 3): every page address (/ask, /village/..., a
 // link from a text message) opens the saved app, which then shows that page.
 // Real files (anything with a dot in its last part, like /privacy.pdf) are left alone.
-registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), {
+// Nov 24 (Jade): if the saved copy of the app page is missing (the phone cleared it,
+// or an update was cut off), fetch it from the website instead of showing
+// "This site can't be reached".
+const appPage = createHandlerBoundToURL('index.html')
+registerRoute(new NavigationRoute(async (options) => {
+  try {
+    const res = await appPage(options)
+    if (res) return res
+  } catch (e) {
+    console.error('[sw] saved app page missing, fetching it:', e)
+  }
+  return fetch(options.request)
+}, {
   denylist: [/\/[^/?]+\.[^/]+$/],
 }))
 
