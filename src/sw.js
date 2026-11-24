@@ -105,7 +105,8 @@ self.addEventListener('push', (event) => {
   const options = {
     body: data.body || '',
     icon: '/icons/icon-192-v3.png',
-    badge: '/icons/badge-96-v3.png',
+    // Nov 24 (Jade): bolder badge without the ring, so it reads at status-bar size.
+    badge: '/icons/badge-96-v4.png',
     tag: data.tag || 'vwb-notification',
     // Nov 13: a new alert with the same tag replaces the old one. Without renotify it
     // replaces it silently (no sound, no buzz, no pop up), so later alerts went unseen.
