@@ -5447,6 +5447,8 @@ const more = {
   'Emergencies and account safety alerts always come through. Everything still shows in Alerts in the app.': 'Las emergencias y las alertas de seguridad de la cuenta siempre llegan. Todo sigue apareciendo en Alertas dentro de la app.',
   'Event invites': 'Invitaciones a eventos',
   'Every alert comes to your phone right away.': 'Cada alerta llega a tu teléfono enseguida.',
+  'Every alert comes to you right away.': 'Cada alerta le llega enseguida.',
+  'Alerts and email': 'Alertas y correo',
   'Finished help tasks': 'Tareas de ayuda terminadas',
   'Group join asks and invites': 'Pedidos para unirse a grupos e invitaciones',
   'Invite link': 'Enlace de invitación',

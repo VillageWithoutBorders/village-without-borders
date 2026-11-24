@@ -428,6 +428,9 @@ export default function Settings() {
           {!simpleOn && <ReadButtonPicker />}
           <MotionPicker />
           <PlainWordsPicker />
+
+          {/* Nov 24 (Jade): alerts get their own heading instead of sitting under Using. */}
+          <h2 className="settings-group-h">{t('Alerts and email')}</h2>
           <AlertChoices />
           </div>
 
