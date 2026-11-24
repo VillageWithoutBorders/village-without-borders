@@ -216,7 +216,7 @@ export default function PublicProfile() {
         />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <h1 style={{ margin: 0, fontSize: '1.4rem' }}>{profile.display_name || t('Neighbor')}</h1>
+            <h1 style={{ margin: 0 }}>{profile.display_name || t('Neighbor')}</h1>
             {profile.is_hope_ambassador && (
               <span style={{ background: 'var(--success-bg)', color: 'var(--accent)', fontSize: '0.8125rem', fontWeight: 600, padding: '2px 8px', borderRadius: '4px' }}>
                 {t('Hope Ambassador')}

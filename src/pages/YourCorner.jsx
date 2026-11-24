@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../supabaseClient'
 import AppMenu from '../components/AppMenu'
@@ -232,13 +232,33 @@ export default function YourCorner() {
   )
 }
 
-// Scan a code (Nov 10, Jade). There is no scanner inside the app: a phone's own camera
-// reads a neighbor's code and offers the link. This says so in three steps.
+// Scan a code (Nov 10, Jade; Nov 24: opens the camera right here).
+// Where the phone's browser can read codes (Chrome and Brave on Android), the camera opens
+// inside the pop-up and a neighbor's code connects you right away. Nothing is saved or sent:
+// the picture stays on the phone, and only a VWB connect code is ever followed.
+// Where it can't (iPhone, Firefox, most computers), the three steps stay.
+const canScan = typeof window !== 'undefined' && 'BarcodeDetector' in window
+  && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+
+// Only our own connect links: /connect/<code> on this app. Anything else is ignored.
+function connectCode(raw) {
+  try {
+    const u = new URL(String(raw).trim())
+    const ours = u.origin === window.location.origin || u.hostname === 'app.villagewithoutborders.org'
+    const m = u.pathname.match(/^\/connect\/([A-Za-z0-9_-]{4,80})\/?$/)
+    return ours && m ? m[1] : null
+  } catch { return null }
+}
+
 function ScanHelp({ onClose }) {
   const t = useT()
+  const navigate = useNavigate()
   const headRef = useRef(null)
+  const videoRef = useRef(null)
   const closeRef = useRef(onClose)
   closeRef.current = onClose
+  // 'steps' (no scanner), 'starting', 'looking', 'blocked' (camera not allowed), 'nocam', 'notours'
+  const [state, setState] = useState(canScan ? 'starting' : 'steps')
   useEffect(() => {
     if (headRef.current) headRef.current.focus()
     function onKey(e) { if (e.key === 'Escape') closeRef.current() }
@@ -247,6 +267,55 @@ function ScanHelp({ onClose }) {
   }, [])
   // The phone's Back button closes the pop-up.
   useBackCloses(closeRef)
+
+  useEffect(() => {
+    if (!canScan) return undefined
+    let stream = null
+    let timer = 0
+    let stopped = false
+    let detector
+    try { detector = new window.BarcodeDetector({ formats: ['qr_code'] }) } catch (err) {
+      console.error('Code reader could not start:', err)
+      setState('steps')
+      return undefined
+    }
+    function stop() {
+      stopped = true
+      clearTimeout(timer)
+      if (stream) stream.getTracks().forEach((tr) => tr.stop())
+    }
+    async function look() {
+      if (stopped) return
+      const v = videoRef.current
+      if (v && v.readyState >= 2) {
+        try {
+          const found = await detector.detect(v)
+          for (const f of found) {
+            const code = connectCode(f.rawValue)
+            if (code) { stop(); closeRef.current(); navigate('/connect/' + code); return }
+            if (f.rawValue) setState('notours')
+          }
+        } catch (err) { console.error('Code reader failed:', err) }
+      }
+      timer = setTimeout(look, 250)
+    }
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+      .then((s) => {
+        if (stopped) { s.getTracks().forEach((tr) => tr.stop()); return }
+        stream = s
+        const v = videoRef.current
+        if (v) { v.srcObject = s; v.play().catch(() => {}) }
+        setState('looking')
+        look()
+      })
+      .catch((err) => {
+        console.error('Camera did not open:', err)
+        setState(err && (err.name === 'NotAllowedError' || err.name === 'SecurityError') ? 'blocked' : 'nocam')
+      })
+    return stop
+  }, [navigate])
+
+  const camera = state === 'starting' || state === 'looking' || state === 'notours'
   return (
     <div className="tools-shade qr-shade" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="tools-sheet qr-sheet" role="dialog" aria-modal="true" aria-labelledby="scan-help-h">
@@ -254,11 +323,33 @@ function ScanHelp({ onClose }) {
           <h2 id="scan-help-h" tabIndex={-1} ref={headRef}>{t('Scan a code')}</h2>
           <button type="button" className="btn btn-outline qr-sheet-close" onClick={onClose}>{t('Close')}</button>
         </div>
-        <ol className="scan-steps">
-          <li>{t('Open the camera on your phone.')}</li>
-          <li>{t("Point it at your neighbor's code.")}</li>
-          <li>{t('Tap the link that shows. It opens here and connects you.')}</li>
-        </ol>
+        {camera && (
+          <>
+            <div className="scan-cam">
+              <video ref={videoRef} muted playsInline aria-label={t("Camera. Point it at your neighbor's code.")} />
+              <span className="scan-frame" aria-hidden="true" />
+            </div>
+            <p className="mycode-lead" role="status">
+              {state === 'starting' ? t('Opening the camera...')
+                : state === 'notours' ? t('That is not a VWB code. Point the camera at the code on your neighbor\'s phone.')
+                : t("Point the camera at your neighbor's code. It connects you by itself.")}
+            </p>
+          </>
+        )}
+        {(state === 'blocked' || state === 'nocam') && (
+          <p className="form-error" role="alert">
+            {state === 'blocked'
+              ? t('The camera is turned off for VWB. You can turn it on in your browser settings, or use the steps below.')
+              : t('We could not open the camera. Use the steps below instead.')}
+          </p>
+        )}
+        {!camera && (
+          <ol className="scan-steps">
+            <li>{t('Open the camera on your phone.')}</li>
+            <li>{t("Point it at your neighbor's code.")}</li>
+            <li>{t('Tap the link that shows. It opens here and connects you.')}</li>
+          </ol>
+        )}
         <p className="mycode-lead">{t('Only scan the code of someone you have met.')}</p>
       </div>
     </div>

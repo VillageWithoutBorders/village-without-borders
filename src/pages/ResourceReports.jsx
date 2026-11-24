@@ -165,7 +165,7 @@ export default function ResourceReports() {
     return (
       <div className="community-page">
         <BackLink fallback="/community/resources" fallbackLabel="Find resources" />
-        <h1 style={{ fontSize: '1.4rem' }}>{t('Reports to review')}</h1>
+        <h1>{t('Reports to review')}</h1>
         <p style={small}>{t('Hope Ambassadors and VWB admins review reports about listings.')}</p>
       </div>
     )
@@ -177,7 +177,7 @@ export default function ResourceReports() {
   return (
     <div className="community-page">
       <BackLink fallback="/community/resources" fallbackLabel="Find resources" />
-      <h1 style={{ fontSize: '1.4rem', margin: '0.5rem 0' }}>{t('Reports to review')}</h1>
+      <h1 style={{ margin: '0.5rem 0' }}>{t('Reports to review')}</h1>
       <p style={small}>{t('Reports and suggested edits on Find Help listings in your area. Urgent ones come first. Nothing changes until someone approves it.')}</p>
       {error && <p role="alert" style={{ color: 'var(--danger)' }}>{error}</p>}
       {loading && <p style={small}>{t('Loading...')}</p>}

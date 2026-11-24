@@ -34,7 +34,7 @@ export default function PastTasks() {
       {!rows && <p className="home-tasks-empty">{t('Loading...')}</p>}
       {rows && rows.length === 0 && <>
         <p className="home-tasks-empty">{t('Nothing finished yet.')}</p>
-        <button type="button" className="btn btn-outline" style={{ minHeight: '44px' }} onClick={() => navigate('/skillshare')}>{t('See who needs a hand')}</button>
+        <button type="button" className="btn btn-primary" style={{ minHeight: '44px' }} onClick={() => navigate('/skillshare')}>{t('See who needs a hand')}</button>
       </>}
       {list.length > 0 && (
         <ul className="home-tasks-list">

@@ -188,7 +188,7 @@ export default function CalendarImport() {
   if (hostChoices.length === 0) {
     return (
       <div className="cal-page">
-        <h1 style={{ color: 'var(--accent)' }}>{t('Bring in events')}</h1>
+        <h1>{t('Bring in events')}</h1>
         <p>{t("Events can be brought in by organizers of a group that's part of Village Without Borders, and by VWB admins.")}</p>
         <button type="button" className="btn btn-outline" style={{ minHeight: '44px' }} onClick={() => navigate('/calendar')}>{t('Back to the calendar')}</button>
       </div>

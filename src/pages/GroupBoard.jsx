@@ -863,12 +863,12 @@ export default function GroupBoard({ pane = false, boardId = null, onOpen, onClo
                 <label htmlFor="group-name-edit" className="groups-note">{t('Chat name')}</label>
                 <input id="group-name-edit" className="group-search" maxLength={80} value={nameDraft ?? group.name} onChange={e => setNameDraft(e.target.value)} />
                 {nameDraft !== null && nameDraft.trim() && nameDraft.trim() !== group.name && (
-                  <button type="button" className="btn btn-outline group-small-btn" disabled={sharedBusy} onClick={async () => { await changeSetting('name', nameDraft.trim()); setNameDraft(null) }}>{group.steward_id ? t('Save name') : t('Ask to change name')}</button>
+                  <button type="button" className="btn btn-primary group-small-btn" disabled={sharedBusy} onClick={async () => { await changeSetting('name', nameDraft.trim()); setNameDraft(null) }}>{group.steward_id ? t('Save name') : t('Ask to change name')}</button>
                 )}
                 <label htmlFor="group-desc-edit" className="groups-note">{t('Description')}</label>
                 <textarea id="group-desc-edit" className="group-search" rows={2} maxLength={500} value={descDraft ?? (group.description || '')} onChange={e => setDescDraft(e.target.value)} />
                 {descDraft !== null && descDraft.trim() !== (group.description || '') && (
-                  <button type="button" className="btn btn-outline group-small-btn" disabled={sharedBusy} onClick={async () => { await changeSetting('description', descDraft.trim()); setDescDraft(null) }}>{group.steward_id ? t('Save description') : t('Ask to change description')}</button>
+                  <button type="button" className="btn btn-primary group-small-btn" disabled={sharedBusy} onClick={async () => { await changeSetting('description', descDraft.trim()); setDescDraft(null) }}>{group.steward_id ? t('Save description') : t('Ask to change description')}</button>
                 )}
                 <label htmlFor="group-disappear" className="groups-note">{t('Posts disappear after')}</label>
                 <select id="group-disappear" className="group-search" disabled={sharedBusy} value={group.disappear_after_mins || 0} onChange={async e => {

@@ -337,7 +337,7 @@ export default function CalendarEventForm() {
   if (!editing && hostChoices.length === 0) {
     return (
       <div className="cal-page">
-        <h1 style={{ color: 'var(--accent)' }}>{t('Post an event')}</h1>
+        <h1>{t('Post an event')}</h1>
         <p>{t("Events can be posted by organizers of a group that's part of Village Without Borders, and by VWB admins.")}</p>
         <p className="cal-sub">{t('If you run a group and want to post events here, reach out to Village Without Borders to get your group set up.')}</p>
         <button type="button" className="btn btn-outline" style={{ minHeight: '44px' }} onClick={() => navigate('/calendar')}>{t('Back to the calendar')}</button>
@@ -361,7 +361,7 @@ export default function CalendarEventForm() {
           <p className="cal-sub" style={{ margin: '0.25rem 0 0.5rem' }}>{t('Copy the event or post text and paste it. We fill in the name, date, time, and place. You check it before posting.')}</p>
           <textarea id="ev-paste" rows={5} value={pasteText} onChange={(e) => { setPasteText(e.target.value); setPasteEmpty(false) }} style={{ width: '100%', boxSizing: 'border-box', minHeight: '120px', fontSize: '1rem', fontFamily: 'inherit' }} />
           {pasteEmpty && <p className="cal-field-error" role="alert">{t('Paste some text first.')}</p>}
-          <button type="button" className="btn btn-outline" onClick={fillFromPaste} style={{ minHeight: '48px', marginTop: '0.5rem' }}>{t('Fill in the form')}</button>
+          <button type="button" className="btn btn-primary" onClick={fillFromPaste} style={{ minHeight: '48px', marginTop: '0.5rem' }}>{t('Fill in the form')}</button>
         </div>
         <div className="evt-pick-grid">
           {EVENT_TEMPLATES.map((tpl) => (

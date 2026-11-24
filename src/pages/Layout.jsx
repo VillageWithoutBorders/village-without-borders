@@ -22,7 +22,7 @@ import QrSheetHost from '../components/QrSheet'
 import { useAdminInbox } from '../hooks/useAdminInbox'
 import AppTour from '../components/AppTour'
 import KeyRestorePrompt from '../components/KeyRestorePrompt'
-import { PageBackContext, FrameBack } from '../components/BackLink'
+import { PageBackContext, PageBackToContext, FrameBack } from '../components/BackLink'
 import { calmMotion } from '../utils/motion'
 import { useTitleRow } from '../hooks/useTitleRow'
 import { readReadButton } from '../utils/readButton'
@@ -95,7 +95,9 @@ export default function Layout() {
   // Nov 10 (Jade, Round D rule, moved up for the space round): not on the bottom-bar pages
   // either (Ask for Help, Calendar, Messages). Their tab shows where you are.
   const bottomBarPage = ['/ask', '/calendar', '/messages'].includes(pathname)
-  const showBack = !ownBacks && !isChat && !bottomBarPage && pathname !== '/' && pathname !== '/me' && (simple || pathname !== '/world')
+  // Nov 24: a page's BackLink hands its way back here instead of drawing its own row.
+  const [backTo, setBackTo] = useState(null)
+  const showBack = backTo ? !isChat : !ownBacks && !isChat && !bottomBarPage && pathname !== '/' && pathname !== '/me' && (simple || pathname !== '/world')
 
   // Ask for Help is ready even if the signal drops later (Nov 3): its screen is
   // fetched once, quietly, a few seconds after the app opens, and kept on the phone.
@@ -205,14 +207,16 @@ export default function Layout() {
         {/* Read this to me (Nov 3, barriers review): Simple view pages, next to Back.
             Not on chats or the maps. */}
         {showBack
-          ? <FrameBack world={isWorld}>{reader && !isChat && !isWorld && <ReadAloud />}</FrameBack>
+          ? <FrameBack world={isWorld} to={backTo}>{reader && !isChat && !isWorld && <ReadAloud />}</FrameBack>
           : reader && !isChat && !isWorld && <div className="app-back-row read-aloud-row"><ReadAloud /></div>}
         {/* Emergency reports (Nov 5) and requests (Nov 3) saved with no signal: waiting, sending, or sent. */}
         {!isChat && !isWorld && <PendingReports />}
         {!isChat && !isWorld && <PendingAsks />}
         <QrSheetHost />
         <PageBackContext.Provider value={tellFrame}>
-          <Outlet />
+          <PageBackToContext.Provider value={setBackTo}>
+            <Outlet />
+          </PageBackToContext.Provider>
         </PageBackContext.Provider>
         {/* What is this? (Nov 10): not in setup, and not on chats, where it would sit on the typing box.
             Inside the page so it can sit at the end of the title's line. */}

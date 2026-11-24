@@ -78,7 +78,7 @@ export default function Connect() {
         {user && state === 'notfound' && (
           <div className="login-form">
             <p className="form-error" role="alert">{t('This code is not working. It may be an old one. Ask your neighbor to show their code again.')}</p>
-            <button type="button" className="btn btn-outline btn-full" onClick={() => navigate('/', { replace: true })}>{t('Go to the app')}</button>
+            <button type="button" className="btn btn-primary btn-full" onClick={() => navigate('/', { replace: true })}>{t('Go to the app')}</button>
           </div>
         )}
 
@@ -107,7 +107,7 @@ export default function Connect() {
         {user && state === 'error' && !preview && (
           <div className="login-form">
             <p className="form-error" role="alert">{t('We could not check this code. Check your connection and try again.')}</p>
-            <button type="button" className="btn btn-outline btn-full" onClick={() => window.location.reload()}>{t('Try again')}</button>
+            <button type="button" className="btn btn-primary btn-full" onClick={() => window.location.reload()}>{t('Try again')}</button>
           </div>
         )}
 

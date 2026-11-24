@@ -292,7 +292,7 @@ export default function GrantReport() {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
         <button onClick={() => goBack('/admin')} aria-label={tr('Back to Admin Panel')} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: '1.5rem', cursor: 'pointer' }}>&#8592;</button>
-        <h1 style={{ margin: 0, fontSize: '1.3rem' }}>{tr('Grant Report')}</h1>
+        <h1 style={{ margin: 0 }}>{tr('Grant Report')}</h1>
       </div>
 
       {/* Date range picker */}

@@ -60,7 +60,7 @@ export default function JoinGroup() {
         {user && state === 'notfound' && (
           <>
             <p className="form-error" role="alert">{t("This link isn't working anymore. Ask someone in the chat for a new one.")}</p>
-            <button type="button" className="btn btn-outline btn-full" onClick={() => navigate('/groups')}>{t('Go to my chats')}</button>
+            <button type="button" className="btn btn-primary btn-full" onClick={() => navigate('/groups')}>{t('Go to my chats')}</button>
           </>
         )}
 

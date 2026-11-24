@@ -6051,6 +6051,13 @@ const more = {
   "Turn phone alerts like this back on": "Volver a recibir alertas del teléfono como esta",
   "More for this alert: flag or mute": "Más para esta alerta: marcar o silenciar",
   "Nothing flagged. Tap \u22EF on an alert and pick Flag to follow up to come back to it later.": "Nada marcado. Toque \u22EF en una alerta y elija Marcar para dar seguimiento para volver a ella después.",
+  // Nov 24: Scan a code opens the camera inside the app.
+  "Camera. Point it at your neighbor's code.": 'Cámara. Apúntela al código de su vecino.',
+  'Opening the camera...': 'Abriendo la cámara...',
+  "That is not a VWB code. Point the camera at the code on your neighbor's phone.": 'Ese no es un código de VWB. Apunte la cámara al código en el teléfono de su vecino.',
+  "Point the camera at your neighbor's code. It connects you by itself.": 'Apunte la cámara al código de su vecino. Los conecta solo.',
+  'The camera is turned off for VWB. You can turn it on in your browser settings, or use the steps below.': 'La cámara está apagada para VWB. Puede encenderla en los ajustes del navegador, o usar los pasos de abajo.',
+  'We could not open the camera. Use the steps below instead.': 'No pudimos abrir la cámara. Use los pasos de abajo.',
 }
 
 export default more
