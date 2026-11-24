@@ -8500,3 +8500,24 @@ html.text-largest .plan-slot-row { grid-template-columns: 1fr; }
 /* Nov 24: QR code choice from the app icon menu. Two big buttons, stacked. */
 .qr-choice { display: grid; gap: 0.75rem; margin: 0.75rem 0; }
 .qr-choice-btn { min-height: 56px; gap: 0.5rem; font-size: 1.05rem; }
+
+/* Nov 24 (Jade): lanterns lighting each other (components/Lanterns.jsx). */
+.lanterns { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.connect-lanterns { width: 200px; margin: 0.25rem auto 0.5rem; }
+.page-loading { display: flex; flex-direction: column; align-items: center; padding-top: 2rem; }
+.page-loading .lanterns { width: 240px; }
+/* My story: each step on the path is a lantern. They light one after another down the path;
+   "Where to next?" waits unlit. With less motion they are simply lit. */
+.tr-stop:not(.tr-next) .tr-dot {
+  border-radius: 12px 12px 14px 14px; border-color: #c9a24a;
+  background: rgba(243, 195, 90, 0.26); box-shadow: 0 0 12px rgba(243, 195, 90, 0.35);
+  animation: tr-light 0.5s ease both; animation-delay: calc(var(--i, 0) * 140ms);
+}
+.tr-dot::before { content: ''; position: absolute; top: -7px; left: 50%; width: 18px; height: 6px; transform: translateX(-50%); background: #5a4632; border-radius: 3px 3px 0 0; }
+.tr-next .tr-dot { border-radius: 12px 12px 14px 14px; }
+@keyframes tr-light {
+  from { background: var(--surface-2, var(--white)); box-shadow: none; }
+  to { background: rgba(243, 195, 90, 0.26); box-shadow: 0 0 12px rgba(243, 195, 90, 0.35); }
+}
+html.calm-motion .tr-stop .tr-dot { animation: none; }
+@media (prefers-reduced-motion: reduce) { .tr-stop .tr-dot { animation: none; } }

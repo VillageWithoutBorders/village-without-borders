@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Lanterns from '../components/Lanterns'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import BackLink from '../components/BackLink'
@@ -87,7 +88,7 @@ export default function Trail() {
       )}
 
       {error && <p className="form-error" role="alert">{error}</p>}
-      {rows === null && <p className="cal-empty">{t('Loading...')}</p>}
+      {rows === null && <div className="page-loading"><Lanterns count={3} mode="loop" /><p className="cal-empty" role="status">{t('Loading...')}</p></div>}
 
       {rows && rows.length > 0 && (
         <ol className="tr-path">
@@ -98,7 +99,7 @@ export default function Trail() {
               <span className="tr-text"><b>{s.text}</b><small>{day(r.at)}</small></span>
             </>
             return (
-              <li key={i} className="tr-stop">
+              <li key={i} className="tr-stop" style={{ '--i': i }}>
                 {r.link ? <Link to={r.link} className="tr-link">{inner}</Link> : <div className="tr-link">{inner}</div>}
               </li>
             )
