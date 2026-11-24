@@ -97,8 +97,8 @@ export default function YourCorner() {
       <h2 id={hid} className="corner-group-h">{t('Your things')}</h2>
       <nav aria-labelledby={hid} className="corner-list">
         <Link to="/trail" className="corner-item">
-          <span aria-hidden="true"><Icon name="compass" /></span>
-          <span className="corner-item-text">{t('My story')}<small>{t('Your story here, step by step')}</small></span>
+          <span aria-hidden="true"><Icon name="scroll" /></span>
+          <span className="corner-item-text">{t('My story')}<small>{t('The path you have walked so far')}</small></span>
           <span className="corner-arrow" aria-hidden="true">›</span>
         </Link>
       </nav>
@@ -113,6 +113,8 @@ export default function YourCorner() {
       {adminWaiting > 0
         ? <span className="corner-item-text">{t('Your roles')}<small>{t('{n} waiting in the Admin inbox', { n: adminWaiting })}</small></span>
         : t('Your roles')}
+      {/* Nov 22 (Jade): the same count as the dot on the My Corner tab, so it is clear where it comes from. */}
+      {adminWaiting > 0 && <span className="corner-count" aria-hidden="true">{adminWaiting > 9 ? '9+' : adminWaiting}</span>}
       <span className="corner-arrow" aria-hidden="true">›</span>
     </button>
   ) : (

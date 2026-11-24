@@ -6106,7 +6106,9 @@ html.simple .tab-item.active::before { width: 44px; margin-left: -22px; height: 
 /* ---------- My trail (pages/Trail.jsx) ---------- */
 .tr-title { font-size: 1.375rem; color: var(--accent); margin: 0.25rem 0 0.5rem; }
 .tr-facts { list-style: none; padding: 0; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem; }
-.tr-facts li { padding: 0.625rem 0.75rem; border: 1px solid var(--border); border-radius: 12px; background: var(--white); font-size: 0.9375rem; color: var(--text-secondary); }
+.tr-facts li { border: 1px solid var(--border); border-radius: 12px; background: var(--white); font-size: 0.9375rem; }
+.tr-facts a { display: block; min-height: 44px; height: 100%; box-sizing: border-box; padding: 0.625rem 0.75rem; border-radius: 12px; color: var(--text-secondary); text-decoration: none; }
+.tr-facts a:hover, .tr-facts a:focus-visible { background: var(--surface-2, transparent); color: var(--text); }
 .tr-facts b { display: block; font-size: 1.375rem; color: var(--gold); }
 .tr-path { list-style: none; padding: 0; margin: 1rem 0 0; position: relative; }
 .tr-path::before { content: ''; position: absolute; left: 21px; top: 22px; bottom: 22px; border-left: 3px dotted var(--gold); }
@@ -7917,9 +7919,14 @@ html.vv-zoomed .what-btn { display: none; }
    2. The banner at the top of every page while an emergency they can act on is open. */
 .corner-emergency {
   display: flex; align-items: center; gap: 0.75rem; width: 100%; min-height: 56px; margin: 0 0 1rem; padding: 0.5rem 1rem;
-  border: 2px solid var(--warn); border-radius: 12px; background: var(--warn); color: var(--bg);
+  border: 2px solid var(--warn); border-radius: 12px; background: var(--warn-bg); color: var(--text-strong);
   font-size: 1.125rem; text-decoration: none; box-sizing: border-box;
 }
+/* Nov 22 (Jade): calm when nothing is open. Bright orange only when an emergency is open or waiting for a check. */
+.corner-emergency.corner-emergency-live { background: var(--warn); color: var(--bg); }
+.corner-count { flex: none; min-width: 1.75rem; height: 1.75rem; padding: 0 0.4rem; margin-left: auto; border-radius: 999px; box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center; background: var(--gold); color: #1a1a1a; font-weight: 800; font-size: 0.95rem; }
+.corner-count + .corner-arrow { margin-left: 0.5rem; }
 .corner-emergency > img, .corner-emergency > svg { flex: none; }
 .corner-emergency b { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .corner-emergency-go { flex: none; font-size: 1.4rem; }
