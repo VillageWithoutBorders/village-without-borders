@@ -35,6 +35,24 @@ export async function reloadFresh() {
   window.location.reload()
 }
 
+// Nov 24 (Jade): the app opened with no colors or layout (its style file did not load).
+// Throw away the saved copies, which only hold app files, and load the newest version.
+// At most once a minute, so it can never loop. Sign-in and chat keys are not touched.
+export async function checkStyles() {
+  const root = document.documentElement
+  if (getComputedStyle(root).getPropertyValue('--surface').trim()) return
+  try {
+    const last = Number(sessionStorage.getItem('vwb_style_reload') || 0)
+    if (Date.now() - last < 60000) return
+    sessionStorage.setItem('vwb_style_reload', String(Date.now()))
+  } catch { return }
+  console.error('[freshApp] styles did not load; fetching the newest version')
+  try {
+    if (window.caches) for (const k of await caches.keys()) if (k.startsWith('workbox-precache') || k.startsWith('vwb-runtime')) await caches.delete(k)
+  } catch (e) { console.error('[freshApp] could not clear saved files:', e) }
+  reloadFresh()
+}
+
 // Call once when the app starts.
 export function watchForUpdates() {
   if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return

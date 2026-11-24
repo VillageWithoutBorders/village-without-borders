@@ -4,7 +4,7 @@ import './index.css'
 import './skins.css'
 import App from './App'
 import { startLang } from './utils/lang'
-import { watchForUpdates } from './utils/freshApp'
+import { watchForUpdates, checkStyles } from './utils/freshApp'
 import { readWidth, applyWidth } from './utils/pageWidth'
 
 // Nov 7 (Jade): the app lives at app.villagewithoutborders.org. Its behind-the-scenes
@@ -26,4 +26,6 @@ startLang().finally(() => {
       <App />
     </StrictMode>
   )
+  // Nov 24: if the style file did not load, get the newest version (see freshApp.js).
+  setTimeout(checkStyles, 1500)
 })

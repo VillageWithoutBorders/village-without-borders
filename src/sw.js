@@ -45,6 +45,12 @@ self.addEventListener('fetch', (event) => {
     const hit = await caches.match(req)
     if (hit) return hit
     const res = await fetch(req)
+    // Nov 24 (Jade): a file from an older version is gone from the website, and the
+    // website answers with the app page instead. Never save that page under a file's
+    // name, and say "not found", so the app fetches the new version instead of
+    // showing a page with no colors or layout.
+    const type = res.headers.get('content-type') || ''
+    if (type.includes('text/html')) return new Response('', { status: 404, statusText: 'Not found' })
     if (res.ok && res.type === 'basic') {
       const copy = res.clone()
       event.waitUntil(caches.open(RUNTIME_CACHE).then((c) => c.put(req, copy)).then(trimRuntime).catch(() => {}))
