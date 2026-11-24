@@ -7927,6 +7927,8 @@ html.vv-zoomed .what-btn { display: none; }
 .corner-count { flex: none; min-width: 1.75rem; height: 1.75rem; padding: 0 0.4rem; margin-left: auto; border-radius: 999px; box-sizing: border-box;
   display: inline-flex; align-items: center; justify-content: center; background: var(--gold); color: #1a1a1a; font-weight: 800; font-size: 0.95rem; }
 .corner-count + .corner-arrow { margin-left: 0.5rem; }
+.corner-roles-in-list { width: 100%; border-bottom: 1px solid var(--border); }
+.corner-roles-in-list .corner-item-text { flex: 1; min-width: 0; }
 .corner-emergency > img, .corner-emergency > svg { flex: none; }
 .corner-emergency b { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .corner-emergency-go { flex: none; font-size: 1.4rem; }

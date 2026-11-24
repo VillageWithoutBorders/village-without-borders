@@ -91,11 +91,26 @@ export default function YourCorner() {
     : t('None open now')
   const emCheck = toCheck > 0 ? (toCheck === 1 ? t('1 waiting for a check') : t('{n} waiting for a check', { n: toCheck })) : ''
 
-  // Your things (Nov 10): one row. On a computer it sits on the right, under the room.
+  // Your roles as one row that opens the list (Nov 22, Jade: phones too, so the page stays short).
+  const rolesRow = (extraClass) => (
+    <button type="button" className={'corner-item corner-item-btn ' + extraClass} data-tour="top-tools" aria-haspopup="dialog" onClick={(e) => { rolesBtn.current = e.currentTarget; setRolesOpen(true) }}>
+      <span aria-hidden="true"><Icon name="toolbox" /></span>
+      {adminWaiting > 0
+        ? <span className="corner-item-text">{t('Your roles')}<small>{t('{n} waiting in the Admin inbox', { n: adminWaiting })}</small></span>
+        : <span className="corner-item-text">{t('Your roles')}</span>}
+      {/* Nov 22 (Jade): the same count as the dot on the My Corner tab, so it is clear where it comes from. */}
+      {adminWaiting > 0 && <span className="corner-count" aria-hidden="true">{adminWaiting > 9 ? '9+' : adminWaiting}</span>}
+      <span className="corner-arrow" aria-hidden="true">›</span>
+    </button>
+  )
+
+  // Your things (Nov 10). On a computer it sits on the right, under the room.
+  // Nov 22 (Jade): on phones, Your roles joins My story here.
   const thingsList = (hid) => (
     <section className="corner-group" aria-labelledby={hid}>
       <h2 id={hid} className="corner-group-h">{t('Your things')}</h2>
       <nav aria-labelledby={hid} className="corner-list">
+        {!split && tools.length > 0 && rolesRow('corner-roles-in-list')}
         <Link to="/trail" className="corner-item">
           <span aria-hidden="true"><Icon name="scroll" /></span>
           <span className="corner-item-text">{t('My story')}<small>{t('The path you have walked so far')}</small></span>
@@ -105,34 +120,8 @@ export default function YourCorner() {
     </section>
   )
 
-  // Your roles. Phones: the tools, right on the page. Computers: one row that opens them
-  // on the right side, so the page still fits one screen.
-  const roles = tools.length > 0 && (split ? (
-    <button type="button" className="corner-item corner-item-btn corner-roles-row" data-tour="top-tools" aria-haspopup="dialog" onClick={(e) => { rolesBtn.current = e.currentTarget; setRolesOpen(true) }}>
-      <span aria-hidden="true"><Icon name="toolbox" /></span>
-      {adminWaiting > 0
-        ? <span className="corner-item-text">{t('Your roles')}<small>{t('{n} waiting in the Admin inbox', { n: adminWaiting })}</small></span>
-        : t('Your roles')}
-      {/* Nov 22 (Jade): the same count as the dot on the My Corner tab, so it is clear where it comes from. */}
-      {adminWaiting > 0 && <span className="corner-count" aria-hidden="true">{adminWaiting > 9 ? '9+' : adminWaiting}</span>}
-      <span className="corner-arrow" aria-hidden="true">›</span>
-    </button>
-  ) : (
-    <section className="corner-group" aria-labelledby="corner-roles-h" data-tour="top-tools">
-      <h2 id="corner-roles-h" className="corner-group-h">{t('Your roles')}</h2>
-      <nav aria-labelledby="corner-roles-h" className="corner-list">
-        {roleRows.map((r) => (
-          <Link key={r.key} to={r.to} className="corner-item">
-            <span aria-hidden="true"><Icon name={r.icon} /></span>
-            {r.name || r.note
-              ? <span className="corner-item-text">{t(r.label)}{r.name && <small>{r.name}</small>}{r.note && <small>{t(r.note, r.noteVars)}</small>}</span>
-              : t(r.label)}
-            <span className="corner-arrow" aria-hidden="true">›</span>
-          </Link>
-        ))}
-      </nav>
-    </section>
-  ))
+  // Your roles. Computers: its own row beside Settings. Phones: inside Your things (above).
+  const roles = split && tools.length > 0 && rolesRow('corner-roles-row')
 
   const page = (
     <div className={'corner-page' + (split ? ' corner-page-full' : '')}>
