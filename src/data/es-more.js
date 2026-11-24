@@ -6060,6 +6060,21 @@ const more = {
   'We could not open the camera. Use the steps below instead.': 'No pudimos abrir la cámara. Use los pasos de abajo.',
   'QR code': 'Código QR',
   'Only connect with someone you have met.': 'Conéctese solo con alguien que conoce en persona.',
+  // Nov 24: install guide.
+  'Install the app': 'Instalar la app',
+  'Or do it yourself:': 'O hágalo usted:',
+  'Open this page in Safari.': 'Abra esta página en Safari.',
+  'Tap the Share button. It is a square with an arrow pointing up.': 'Toque el botón Compartir. Es un cuadrado con una flecha hacia arriba.',
+  'Tap "Add to Home Screen," then tap "Add."': 'Toque "Agregar a pantalla de inicio" y luego "Agregar".',
+  'Look at the right end of the address bar for the install button. It looks like a screen with an arrow.': 'Busque el botón de instalar al final de la barra de direcciones. Parece una pantalla con una flecha.',
+  'Or open the browser menu and choose "Install."': 'O abra el menú del navegador y elija "Instalar".',
+  'Tap the menu. It is the three dots at the top right.': 'Toque el menú. Son los tres puntos arriba a la derecha.',
+  'Tap "Install app." If you only see "Add to Home screen," tap that and pick "Install."': 'Toque "Instalar app". Si solo ve "Agregar a pantalla de inicio", tóquelo y elija "Instalar".',
+  'Tap "Install" one more time.': 'Toque "Instalar" una vez más.',
+  'Is there a little browser logo on your VWB icon? That icon is only a shortcut. Press and hold it, remove it, then follow the steps above.': '¿Su ícono de VWB tiene un pequeño logo del navegador? Ese ícono es solo un acceso directo. Manténgalo presionado, quítelo y luego siga los pasos de arriba.',
+  'Once it is installed, press and hold the VWB icon for quick choices: Find help, Ask for help, QR code, and My village.': 'Cuando esté instalada, mantenga presionado el ícono de VWB para ver opciones rápidas: Buscar ayuda, Pedir ayuda, Código QR y Mi aldea.',
+  'Once it is installed, right-click the VWB icon for quick choices: Find help, Ask for help, QR code, and My village.': 'Cuando esté instalada, haga clic derecho en el ícono de VWB para ver opciones rápidas: Buscar ayuda, Pedir ayuda, Código QR y Mi aldea.',
+  'Too many tries. Wait a few minutes, then try the newest code.': 'Demasiados intentos. Espere unos minutos y pruebe el código más nuevo.',
 }
 
 export default more

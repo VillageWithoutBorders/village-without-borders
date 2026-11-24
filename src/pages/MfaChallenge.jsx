@@ -20,19 +20,32 @@ export default function MfaChallenge() {
     if (!/^\d{6}$/.test(clean)) { setError(t('Enter the 6-digit code from your authenticator app.')); return }
     setBusy(true)
     const { data: factors, error: listErr } = await supabase.auth.mfa.listFactors()
-    const factor = factors?.totp?.[0]
-    if (listErr || !factor) {
+    const list = factors?.totp || []
+    if (listErr || !list.length) {
       setBusy(false)
       console.error('[MfaChallenge] listFactors', listErr)
       setError(t("We couldn't find your two-step login. Sign out and sign in again."))
       return
     }
-    const { error: verifyErr } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: clean })
+    // Nov 24 (Jade was locked out): an account can have more than one authenticator
+    // (a backup phone, or two-step set up again). The code is checked against each one,
+    // not only the first, so a code from any of your phones works.
+    let ok = false
+    let lastErr = null
+    for (const factor of list) {
+      const { error: verifyErr } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: clean })
+      if (!verifyErr) { ok = true; break }
+      lastErr = verifyErr
+      console.error('[MfaChallenge] verify', factor.friendly_name || factor.id, verifyErr)
+      // Too many tries: stop here instead of using up more.
+      if (verifyErr.status === 429) break
+    }
     setBusy(false)
-    if (verifyErr) {
-      console.error('[MfaChallenge] verify', verifyErr)
+    if (!ok) {
       setCode('')
-      setError(t('That code did not work. Check that the clock on your phone is right, then try the newest code.'))
+      setError(lastErr && lastErr.status === 429
+        ? t('Too many tries. Wait a few minutes, then try the newest code.')
+        : t('That code did not work. Check that the clock on your phone is right, then try the newest code.'))
       return
     }
     await refreshMfa()

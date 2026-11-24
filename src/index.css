@@ -8521,3 +8521,11 @@ html.text-largest .plan-slot-row { grid-template-columns: 1fr; }
 }
 html.calm-motion .tr-stop .tr-dot { animation: none; }
 @media (prefers-reduced-motion: reduce) { .tr-stop .tr-dot { animation: none; } }
+
+/* Nov 24 (Jade): Put the app on your home screen, a short guide. */
+.install-now { min-height: 52px; gap: 0.5rem; margin: 0.25rem 0 0.5rem; }
+.install-or { margin: 0.25rem 0; }
+.install-steps { margin: 0.25rem 0 0.75rem; padding-left: 1.5rem; display: grid; gap: 0.5rem; font-size: 1rem; line-height: 1.45; color: var(--text); }
+.install-note, .install-tip { margin: 0 0 0.75rem; padding: 0.6rem 0.75rem; border-radius: 10px; font-size: 0.95rem; line-height: 1.45; color: var(--text); }
+.install-note { background: var(--surface-2, transparent); border: 1px solid var(--border); }
+.install-tip { border: 1px dashed var(--gold); }
