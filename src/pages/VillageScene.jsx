@@ -852,12 +852,17 @@ export default function VillageScene() {
           </div>
         )}
         {/* Your cottage: Today (what needs you, shortcuts, coming up) sits right under the map (Oct 22). */}
-        {cottage && <section id="today" className="vs-panel vs-today" aria-label={t('Today')}><Dashboard embedded /></section>}
+        {/* Nov 24 (Jade): Groups and crews sits in the Do something column. Villages, Chats and
+            Help are not repeated here: the top bar (Places) and the bottom bar already have them.
+            They stay on the cottage map. Simple view keeps its list. */}
+        {cottage && <section id="today" className="vs-panel vs-today" aria-label={t('Today')}>
+          <Dashboard embedded extra={!simple ? <div className="vs-list today-do-list">{SPOTS.filter((s) => s.k === 'orgs').map(roomRow)}</div> : null} />
+        </section>}
         {!cottage && <div className="vs-help">
           <button type="button" className="vs-big vs-find" onClick={() => navigate('/ask')}>{t('Ask for Help')}</button>
           <button type="button" className="vs-big vs-offer" onClick={() => navigate('/skillshare')}>{t('Offer Help')}</button>
         </div>}
-        <h2 className="vs-pick-h">{t('Or pick from the list')}</h2>
+        {!(cottage && !simple) && <h2 className="vs-pick-h">{t('Or pick from the list')}</h2>}
         {/* Simple view (Oct 27): the main places first, the rest folded under More. */}
         {simple ? <>
           <div className="vs-list">{SPOTS.filter((s) => simpleMain.includes(s.k)).sort((a, b) => simpleMain.indexOf(a.k) - simpleMain.indexOf(b.k)).map(roomRow)}</div>
@@ -867,7 +872,7 @@ export default function VillageScene() {
               <div className="vs-list">{SPOTS.filter((s) => !simpleMain.includes(s.k)).map(roomRow)}</div>
             </details>
           )}
-        </> : <div className="vs-list">{SPOTS.map(roomRow)}</div>}
+        </> : !cottage && <div className="vs-list">{SPOTS.map(roomRow)}</div>}
         {/* Your cottage already has Calendar in its list, so no separate Events button there (Nov 8). */}
         {/* Oct 28 (Jade): My Corner is no longer repeated under the cottage map. The My Corner button opens it. */}
       </div>

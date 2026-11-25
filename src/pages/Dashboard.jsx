@@ -50,7 +50,7 @@ function VillageAsk() {
 }
 
 // Oct 22: Today lives under your cottage map (embedded). /today opens /cottage#today.
-export default function Dashboard({ embedded = false }) {
+export default function Dashboard({ embedded = false, extra = null }) {
   const { profile, isAdmin, established } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -98,12 +98,37 @@ export default function Dashboard({ embedded = false }) {
         </section>
       )}
 
+      {/* Nov 24 (Jade): under the cottage map, two columns by purpose. What's happening:
+          Needs you, Need nearby, Coming up. Do something: your quick buttons, Groups and crews,
+          Emergency. On a phone the two stack. Elsewhere the page keeps its old order. */}
+      {embedded ? (
+        <div className="today-cols">
+          <section className="today-col today-happening" aria-labelledby="today-happening-h">
+            <h2 id="today-happening-h" className="today-col-h">{t("What's happening")}</h2>
+            <NeedsYou onCount={setWaiting}>
+              <OrgInvites />
+              <VillageGuestInvites />
+              {(profile?.is_hope_ambassador || isAdmin) && <NearbyNeedTiles />}
+            </NeedsYou>
+            <ComingUp slim />
+          </section>
+          <section className="today-col today-do" aria-labelledby="today-do-h">
+            <h2 id="today-do-h" className="today-col-h">{t('Do something')}</h2>
+            <QuickActions />
+            {extra}
+            <button type="button" data-tour="emergency" className="today-slim today-slim-warn" onClick={() => navigate('/emergency')}>
+              <Icon name="cat-emergency" size={28} />
+              <span className="today-slim-text"><b>{t('Emergency Response')}</b><small>{t('Floods, storms, fires, outages')}</small></span>
+              <span className="today-slim-go" aria-hidden="true">&#8250;</span>
+            </button>
+          </section>
+        </div>
+      ) : (<>
       <NeedsYou onCount={setWaiting}>
         <OrgInvites />
         <VillageGuestInvites />
         {(profile?.is_hope_ambassador || isAdmin) && <NearbyNeedTiles />}
       </NeedsYou>
-
       {/* Oct 28 (Jade): Quick buttons stay, with "Change these buttons", so nothing is lost.
           They now start with only the ones the top and bottom bars don't already have. */}
       <QuickActions />
@@ -113,7 +138,8 @@ export default function Dashboard({ embedded = false }) {
       {!embedded && <YourPlaces />}
 
       {/* Nov 1 (Jade): under the cottage map, Coming up and Emergency are slim bars. */}
-      <ComingUp slim={embedded} />
+      <ComingUp />
+      </>)}
 
       {/* One setup reminder at a time: only the first one that has something to say shows. */}
       <div className="today-setup">
@@ -124,13 +150,7 @@ export default function Dashboard({ embedded = false }) {
         <AmbassadorBanner />
       </div>
 
-      {embedded ? (
-        <button type="button" data-tour="emergency" className="today-slim today-slim-warn" onClick={() => navigate('/emergency')}>
-          <Icon name="cat-emergency" size={28} />
-          <span className="today-slim-text"><b>{t('Emergency Response')}</b><small>{t('Floods, storms, fires, outages')}</small></span>
-          <span className="today-slim-go" aria-hidden="true">&#8250;</span>
-        </button>
-      ) : (
+      {!embedded && (
       <button data-tour="emergency" onClick={() => navigate('/emergency')} style={{ display: "flex", alignItems: "center", gap: "0.75rem", width: "100%", marginTop: "1.25rem", padding: "1rem 1.25rem", borderRadius: "12px", border: "2px solid var(--warn)", background: "linear-gradient(135deg, var(--warn-bg), var(--warn-bg))", cursor: "pointer", textAlign: "left" }}>
         <span aria-hidden="true" style={{ flexShrink: 0, display: "flex" }}><Icon name="cat-emergency" size={40} /></span>
         <div>

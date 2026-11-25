@@ -64,6 +64,7 @@
   --shadow: 0 2px 8px rgba(0,0,0,0.3);
   /* In rem so the top bar grows with the phone's text size instead of covering the page. */
   --header-height: 3.75rem;
+  --header-base: 3.75rem;
   --tab-height: 60px;
 }
 
@@ -178,7 +179,7 @@ body {
 }
 
 .app-header-inner {
-  height: 100%;
+  height: var(--header-base, 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -7620,7 +7621,7 @@ html.simple .tab-icon-pic, html.simple .tab-icon-pic .vwb-icon { width: 2rem; he
    width instead of growing taller, so the maps and pages keep their size.
    ============================================================ */
 @media (min-width: 1024px) {
-  html.text-large, html.text-larger, html.text-largest { --header-height: 2.9rem; --tab-height: calc(1.625rem + 20px); }
+  html.text-large, html.text-larger, html.text-largest { --header-height: 2.9rem; --header-base: 2.9rem; --tab-height: calc(1.625rem + 20px); }
   html.text-large .app-header-inner, html.text-larger .app-header-inner, html.text-largest .app-header-inner,
   html.text-large .bottom-tabs-inner, html.text-larger .bottom-tabs-inner, html.text-largest .bottom-tabs-inner { max-width: 1240px; }
   html.text-large .header-nav .header-btn, html.text-larger .header-nav .header-btn, html.text-largest .header-nav .header-btn { flex-direction: row; gap: 0.4rem; padding: 4px 12px 0; min-height: 0; }
@@ -7790,7 +7791,7 @@ button[role="switch"]::after { content: ""; position: absolute; inset: -11px -4p
    its word, at every text size (it was only at Large and up). Phones keep the picture
    above the word, since five words side by side don't fit a phone. */
 @media (min-width: 1024px) {
-  html { --header-height: 2.9rem; --tab-height: calc(1.625rem + 20px); }
+  html { --header-height: 2.9rem; --header-base: 2.9rem; --tab-height: calc(1.625rem + 20px); }
   .app-header-inner, .bottom-tabs-inner { max-width: 1240px; }
   .header-nav .header-btn { flex-direction: row; gap: 0.4rem; padding: 4px 12px 0; min-height: 0; max-width: none; }
   .tab-item { flex-direction: row; justify-content: center; gap: 0.5rem; padding: 4px 8px; }
@@ -8529,3 +8530,55 @@ html.calm-motion .tr-stop .tr-dot { animation: none; }
 .install-note, .install-tip { margin: 0 0 0.75rem; padding: 0.6rem 0.75rem; border-radius: 10px; font-size: 0.95rem; line-height: 1.45; color: var(--text); }
 .install-note { background: var(--surface-2, transparent); border: 1px solid var(--border); }
 .install-tip { border: 1px dashed var(--gold); }
+
+/* Nov 24 (Jade): Places. On the World, Village and Cottage pages the top bar has a
+   second row: World, Village, Cottage, rounded like the Messages tabs. The bar grows
+   by that row, and --header-height grows with it, so the pages below still fit. */
+html.places-on { --places-h: 50px; --header-height: calc(var(--header-base) + var(--places-h)); }
+.places-row { height: var(--places-h, 52px); display: flex; align-items: center; padding: 0 0.5rem 6px; box-sizing: border-box; }
+.places-switch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 600px; margin: 0 auto; }
+.places-switch-btn {
+  min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 8px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1); color: #fff; font-weight: 700; font-size: 1rem; text-decoration: none; min-width: 0;
+}
+.places-switch-btn > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.places-switch-btn:hover { background: rgba(255, 255, 255, 0.18); }
+.places-switch-btn.on { background: var(--accent); color: var(--on-accent); }
+.places-switch-btn:active { transform: scale(0.97); }
+.places-switch-btn:focus-visible { outline: 3px solid #e8b84a; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .places-switch-btn:active { transform: none; } }
+@media (max-width: 359px) { .places-switch-btn { font-size: 0.9rem; gap: 4px; padding: 0 4px; } }
+@media (min-width: 1024px) { .places-switch { max-width: 720px; } }
+
+/* Nov 24 (Jade): the phone row is a drawer under the open Places tab: the same color as the
+   open tab (the page color), full width and touching it. */
+.places-row { background: var(--bg); padding: 3px 8px; height: var(--places-h, 50px); }
+.places-switch { max-width: none; gap: 6px; }
+.places-switch-btn { background: var(--surface-2); color: var(--text-soft); }
+.places-switch-btn:hover { background: var(--surface-2); color: var(--text); }
+.places-switch-btn.on { background: var(--accent); color: var(--on-accent); }
+@media (min-width: 1024px) { .places-switch { max-width: none; } }
+/* Computers: World, Village and Cottage are joined right in the top bar, where Places was.
+   One soft block holds the three, so they read as one group; the open one looks like an open tab. */
+.places-inline { flex: 3 1 0; display: flex; gap: 0; min-width: 0; border-radius: 12px 12px 0 0; background: rgba(255, 255, 255, 0.07); }
+.places-inline > .header-btn.places-seg { flex: 1 1 0; max-width: none; background: none; border-radius: 12px 12px 0 0; }
+.places-inline > .header-btn.places-seg + .places-seg { box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.12); }
+.places-inline > .header-btn.places-seg:hover { background: rgba(255, 255, 255, 0.08); }
+.places-inline > .header-btn.places-seg.on { background: var(--bg); color: var(--text-strong); box-shadow: inset 0 4px 0 #e0b85a; }
+.places-inline > .header-btn.places-seg.on .header-btn-label { color: var(--text-strong); }
+/* Nov 24: the joined Places buttons are as tall as the other top bar tabs, and line up with them. */
+.header-nav > .places-inline { align-self: stretch; margin-top: 6px; }
+.places-inline > .header-btn.places-seg { align-self: stretch; padding-top: 6px; }
+/* Nov 24: the keyboard ring on World, Village and Cottage is a soft gold line inside the tab,
+   so the open tab still shows its gold stripe and doesn't look like a white box. */
+.places-inline > .header-btn.places-seg:focus-visible { outline: 2px solid #e0b85a; outline-offset: -6px; }
+/* Nov 24 (Jade): every top bar tab gets the soft gold keyboard ring, not a white box. */
+.header-nav .header-btn:focus-visible { outline: 2px solid #e0b85a; outline-offset: -6px; }
+/* Nov 24 (Jade): with fewer tabs, they don't stretch across the whole bar on a computer.
+   Each tab has a sensible width and the row sits in the middle. The joined World, Village,
+   Cottage group is about three tabs wide. */
+@media (min-width: 1024px) {
+  html:not(.simple) .app-header-inner.header-nav { justify-content: center; gap: 4px; }
+  html:not(.simple) .header-nav > .header-btn, html:not(.simple) .header-nav > .app-menu { flex: 0 1 220px; }
+  html:not(.simple) .header-nav > .places-inline { flex: 0 1 600px; }
+}

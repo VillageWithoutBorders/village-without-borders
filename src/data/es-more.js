@@ -6075,6 +6075,17 @@ const more = {
   'Once it is installed, press and hold the VWB icon for quick choices: Find help, Ask for help, QR code, and My village.': 'Cuando esté instalada, mantenga presionado el ícono de VWB para ver opciones rápidas: Buscar ayuda, Pedir ayuda, Código QR y Mi aldea.',
   'Once it is installed, right-click the VWB icon for quick choices: Find help, Ask for help, QR code, and My village.': 'Cuando esté instalada, haga clic derecho en el ícono de VWB para ver opciones rápidas: Buscar ayuda, Pedir ayuda, Código QR y Mi aldea.',
   'Too many tries. Wait a few minutes, then try the newest code.': 'Demasiados intentos. Espere unos minutos y pruebe el código más nuevo.',
+  // Nov 24: Places tab.
+  'Places: your world, your village, and your cottage': 'Lugares: su mundo, su aldea y su casita',
+  'Places: your world, your village, and your cottage. Pick one at the top.': 'Lugares: su mundo, su aldea y su casita. Elija uno arriba.',
+  'Your world, your village and your cottage live here. Tap Places, then pick one at the top.': 'Aquí están su mundo, su aldea y su casita. Toque Lugares y elija uno arriba.',
+  // Nov 24: connected groups on My World.
+  'These groups work together. You and the other Heads and organizers share a Campfire to plan together.': 'Estos grupos trabajan juntos. Usted y los demás líderes y organizadores comparten un Campfire para planear juntos.',
+  'Open our Campfire': 'Abrir nuestro Campfire',
+  'These groups work together. Their Heads and organizers plan together in a shared Campfire.': 'Estos grupos trabajan juntos. Sus líderes y organizadores planean juntos en un Campfire compartido.',
+  // Nov 24: My Cottage columns.
+  "What's happening": 'Qué está pasando',
+  'Do something': 'Hacer algo',
 }
 
 export default more

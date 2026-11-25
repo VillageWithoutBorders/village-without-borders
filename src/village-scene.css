@@ -1422,3 +1422,52 @@ html.text-larger .gh, html.text-largest .gh { grid-template-columns: 1fr !import
   html:not(.simple) .vs-page-path .vs-pick-h { font-size: 1.05rem; }
 }
 
+
+/* Nov 24 (Jade): smaller cards on My Cottage, so the panel fits without empty-feeling boxes.
+   Stay in the loop is one slim row: bell, words, Enable and Not now on the same line, the
+   same height as Coming up and Emergency. The Need nearby counts are slimmer too. */
+@media (min-width: 1024px) {
+  html:not(.simple) .vs-today .push-banner { display: flex; align-items: center; gap: 0.75rem; min-height: 52px; padding: 0.35rem 0.85rem; box-sizing: border-box; }
+  html:not(.simple) .vs-today .push-banner-content { flex: 1 1 auto; min-width: 0; margin: 0; }
+  html:not(.simple) .vs-today .push-banner-text strong { display: inline; margin: 0 0.5rem 0 0; }
+  html:not(.simple) .vs-today .push-banner-text p { display: inline; }
+  html:not(.simple) .vs-today .push-banner-actions { flex: none; gap: 0.5rem; }
+  html:not(.simple) .vs-today .push-banner-dismiss { min-height: 44px; padding: 0 0.5rem; }
+  html:not(.simple) .vs-today .home-need-tile { min-height: 44px; padding: 0.3rem 0.75rem; align-items: center; }
+}
+
+/* Nov 24 (Jade): nothing on My Cottage stretches across the whole panel just to hold a few
+   words. Each card is as wide as what it says (with a sensible most), and they sit side
+   by side, wrapping to the next line when the row is full. Computers only. */
+@media (min-width: 1024px) {
+  html:not(.simple) .vs-page .vs-today .home-need-tiles { display: flex; flex-wrap: wrap; gap: 8px; }
+  html:not(.simple) .vs-page .vs-today .home-need-tile { flex: 0 1 auto; width: auto; padding: 0.3rem 0.9rem; }
+  html:not(.simple) .vs-page .vs-today .qa > .qa-grid { flex: 0 1 auto; display: flex; flex-wrap: wrap; gap: 8px; }
+  html:not(.simple) .vs-page .vs-today .qa-btn { flex: 0 1 auto; width: auto; padding-left: 0.9rem; padding-right: 1.1rem; }
+  html:not(.simple) .vs-page .vs-today .qa > .qa-link { margin-left: 4px; }
+  html:not(.simple) .vs-page .vs-today .dashboard { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0 10px; }
+  html:not(.simple) .vs-page .vs-today .dashboard > * { flex: 1 1 100%; }
+  html:not(.simple) .vs-page .vs-today .dashboard > .today-slim { flex: 0 1 auto; width: auto; max-width: 360px; gap: 0.75rem; }
+  html:not(.simple) .vs-page .vs-today .dashboard > .today-setup { flex: 0 1 auto; width: auto; max-width: 560px; margin: 0 0 0.5rem; }
+  html:not(.simple) .vs-page .vs-today .push-banner-text p { display: block; }
+  html:not(.simple) .vs-page-path .vs-list { grid-template-columns: repeat(auto-fill, minmax(200px, 250px)); }
+}
+
+/* Nov 24 (Jade): My Cottage in two columns by purpose. What's happening on the left,
+   Do something on the right. Each column is a stack; buttons are as wide as their words.
+   Phones: the two stack, What's happening first. */
+.today-cols { display: grid; gap: 0.75rem; margin: 0.25rem 0 0.5rem; }
+.today-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; min-width: 0; }
+.today-col > * { max-width: 100%; margin: 0 !important; }
+.today-col-h { margin: 0; font-size: 1rem; font-weight: 700; color: var(--text-secondary); }
+.today-col .today-needs { align-self: stretch; }
+.today-do .qa { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.today-do .qa > .qa-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.today-do .qa-btn { width: auto; flex: 0 1 auto; }
+.today-do .today-do-list { display: flex; flex-wrap: wrap; gap: 8px; grid-template-columns: none !important; }
+.today-do .today-do-list > * { flex: 0 1 auto; }
+.today-col .today-slim { width: auto; max-width: 100%; align-self: flex-start; gap: 0.75rem; }
+@media (min-width: 1024px) {
+  html:not(.simple) .vs-today .today-cols { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); column-gap: 1.25rem; }
+  html:not(.simple) .vs-today .today-do { border-left: 1px solid var(--border); padding-left: 1.25rem; }
+}
