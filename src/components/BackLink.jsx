@@ -6,6 +6,10 @@ import { useT } from '../utils/lang'
 // The app frame (Layout) shows a Back button at the top of every page (Oct 22, Jade).
 // A page that has its own BackLink tells the frame, so there is only ever one.
 export const PageBackContext = createContext(null)
+// Nov 24 (Jade, same frame on every page): a page's BackLink no longer draws its own
+// row above the title. It hands its way back to the frame, and the frame's Back sits
+// at the start of the title's line like every other page (hooks/useTitleRow.js).
+export const PageBackToContext = createContext(null)
 
 // Goes back to the page the person came from. If they opened this page
 // directly (a link, a bookmark, a refresh), it goes to the fallback instead.
@@ -15,11 +19,17 @@ export default function BackLink({ fallback = '/', fallbackLabel = 'Home', class
   const location = useLocation()
   const cameFromApp = location.key !== 'default'
   const tellFrame = useContext(PageBackContext)
+  const giveFrame = useContext(PageBackToContext)
   useEffect(() => {
+    if (giveFrame) {
+      giveFrame({ fallback, fallbackLabel })
+      return () => giveFrame(null)
+    }
     if (!tellFrame) return
     tellFrame(1)
     return () => tellFrame(-1)
-  }, [tellFrame])
+  }, [tellFrame, giveFrame, fallback, fallbackLabel])
+  if (giveFrame) return null
   return (
     <Link
       to={fallback}
@@ -60,16 +70,16 @@ export function useGoBack() {
 }
 
 // The Back button the app frame shows on pages without their own.
-export function FrameBack({ world, children }) {
+export function FrameBack({ world, children, to }) {
   const t = useT()
   const navigate = useNavigate()
   const location = useLocation()
   const cameFromApp = location.key !== 'default'
   return (
     <div className={'app-back-row' + (world ? ' app-back-world' : '')}>
-      <Link to={isSimpleView() ? '/' : '/world'} className="app-back" onClick={cameFromApp ? (e) => { e.preventDefault(); navigate(-1) } : undefined}>
+      <Link to={to ? to.fallback : (isSimpleView() ? '/' : '/world')} className="app-back" onClick={cameFromApp ? (e) => { e.preventDefault(); navigate(-1) } : undefined}>
         {/* Nov 10: beside a page title only the arrow shows; the word stays for screen readers (useTitleRow). */}
-        <span aria-hidden="true">&#8592;</span> <span className="app-back-word">{t(cameFromApp ? 'Back' : 'Home')}</span>
+        <span aria-hidden="true">&#8592;</span> <span className="app-back-word">{t(cameFromApp ? 'Back' : (to ? to.fallbackLabel : 'Home'))}</span>
       </Link>
       {children}
     </div>

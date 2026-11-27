@@ -22,6 +22,7 @@
     "@dicebear/core": "9.4.3",
     "@dicebear/thumbs": "9.4.2",
     "@supabase/supabase-js": "^2.112.4",
+    "jsqr": "^1.4.0",
     "leaflet": "^1.9.4",
     "libsodium-wrappers": "^0.7.13",
     "qrcode": "^1.5.4",

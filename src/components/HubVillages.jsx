@@ -23,7 +23,7 @@ export default function HubVillages({ onOpen, selectedId }) {
     let alive = true
     async function load() {
       const [b, m, u] = await Promise.all([
-        supabase.from('campfire_boards').select('id, name, village_id, is_general, sort_order').eq('archived', false),
+        supabase.from('campfire_boards').select('id, name, village_id, is_general, sort_order, sister_a, event_id, closed_at').eq('archived', false),
         supabase.from('village_members').select('village_id').eq('user_id', user.id),
         supabase.rpc('campfire_unread'),
       ])
@@ -39,20 +39,28 @@ export default function HubVillages({ onOpen, selectedId }) {
     }
     load()
     const timer = setInterval(load, 30000)
-    return () => { alive = false; clearInterval(timer) }
+    window.addEventListener('vwb:village-read', load)
+    return () => { alive = false; clearInterval(timer); window.removeEventListener('vwb:village-read', load) }
   }, [user.id])
 
   const general = (boards || []).filter((b) => b.is_general)
   const villages = (boards || []).filter((b) => b.village_id && mine.has(b.village_id)).sort((a, b) => a.name.localeCompare(b.name))
-  const rooms = (boards || []).filter((b) => !b.is_general && !b.village_id)
+  // Nov 19 (Jade): the other chats were all labeled as Ambassador rooms, even the
+  // Sister Campfires and Response Camps. Each kind now has its own heading and note.
+  const others = (boards || []).filter((b) => !b.is_general && !b.village_id)
+  const sisters = others.filter((b) => b.sister_a)
+  const camps = others.filter((b) => !b.sister_a && b.event_id)
+  const rooms = others.filter((b) => !b.sister_a && !b.event_id)
+  const closedNote = t('Closed. You can read it, but not post.')
+  const head = (id, text) => <div className="hub-section-head" style={{ marginTop: '1rem' }}><h2 id={id}>{text}</h2></div>
 
   function card(b, icon, note) {
     const n = unread[b.id] || 0
     return (
-      <button key={b.id} type="button" className={'cal-card' + (selectedId && (selectedId === b.id || (selectedId === 'square' && b.is_general)) ? ' hub-row-on' : '')} style={{ width: '100%', textAlign: 'left', minHeight: '44px', marginBottom: '0.6rem' }}
+      <button key={b.id} type="button" className={'cal-card' + (selectedId && (selectedId === b.id || (selectedId === 'square' && b.is_general)) ? ' hub-row-on' : '')} style={{ width: '100%', textAlign: 'left', minHeight: '44px', marginBottom: '0.6rem', ...(n > 0 ? { borderLeft: '4px solid var(--danger)' } : {}) }}
         aria-current={selectedId === b.id ? 'true' : undefined}
         aria-label={b.name + (n ? ', ' + t('{n} new', { n }) : '')} onClick={() => (onOpen ? onOpen(b.id) : navigate('/village-square?board=' + b.id))}>
-        <span className="cal-card-title"><Icon name={icon} /> {b.name}{n > 0 && <span style={{ marginLeft: '0.5rem', color: 'var(--accent)', fontWeight: 700 }}>{t('{n} new', { n: n > 9 ? '9+' : n })}</span>}</span>
+        <span className="cal-card-title"><Icon name={icon} /> {b.name}{n > 0 && <span className="hub-tab-count" style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{t('{n} new', { n: n > 9 ? '9+' : n })}</span>}</span>
         <span className="cal-card-meta">{note}</span>
       </button>
     )
@@ -65,7 +73,12 @@ export default function HubVillages({ onOpen, selectedId }) {
       {failed && <p className="cal-error">{t('We could not load your village chats. Check your connection and try again.')}</p>}
       {general.map((b) => card(b, '📣', t('Updates from VWB. Read only.')))}
       {villages.map((b) => card(b, '🏘️', t('Your village chat')))}
-      {rooms.map((b) => card(b, '🔥', t('A private room for Ambassadors')))}
+      {sisters.length > 0 && head('hub-sisters', t('Sister Villages'))}
+      {sisters.map((b) => card(b, '🌉', b.closed_at ? closedNote : t('A shared chat for two Sister Villages')))}
+      {camps.length > 0 && head('hub-camps', t('Response Camps'))}
+      {camps.map((b) => card(b, '⛺', b.closed_at ? closedNote : t('For neighbors helping in this emergency')))}
+      {rooms.length > 0 && head('hub-rooms', t('Ambassador rooms'))}
+      {rooms.map((b) => card(b, '🗝', t('Only Ambassadors can read this')))}
       {boards !== null && !failed && villages.length === 0 && (
         <p className="cal-empty">{profile?.zip_code ? t('You have not joined a village chat yet.') : t('Add your zip code on your Profile to find your village chat.')}</p>
       )}

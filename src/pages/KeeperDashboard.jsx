@@ -138,7 +138,7 @@ export default function KeeperDashboard() {
       <div className="cal-page hub-page dash-page">
         <BackLink fallback={'/village/' + id} fallbackLabel={village.name} />
         <p className="cal-empty">{t('Keeper tools are only for the neighbors who look after {name}.', { name: village.name })}</p>
-        <Link className="btn btn-outline btn-full" style={{ minHeight: 48 }} to={'/village/' + id}>{t('Back to {name}', { name: village.name })}</Link>
+        <Link className="btn btn-primary btn-full" style={{ minHeight: 48 }} to={'/village/' + id}>{t('Back to {name}', { name: village.name })}</Link>
       </div>
     )
   }

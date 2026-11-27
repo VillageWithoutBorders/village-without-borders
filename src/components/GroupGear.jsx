@@ -32,7 +32,7 @@ function Picker({ label, options, picked, setPicked, idBase }) {
       <div className="gg-add">
         <label htmlFor={idBase + '-add'} className="sr-only">{t(label === 'Skills' ? 'Add your own skills' : 'Add your own gear')}</label>
         <input id={idBase + '-add'} type="text" maxLength={40} placeholder={t('Add your own')} value={extra} onChange={(e) => setExtra(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') add(e) }} />
-        <button type="button" className="btn btn-outline" onClick={add} disabled={!extra.trim()}>{t('Add')}</button>
+        <button type="button" className="btn btn-primary" onClick={add} disabled={!extra.trim()}>{t('Add')}</button>
       </div>
     </fieldset>
   )

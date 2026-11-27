@@ -78,7 +78,7 @@ export default function AccessNotesEditor({ value, onChange, orgId }) {
           <label htmlFor="acc-save-name">{t('Save these notes as a place for next time (optional)')}</label>
           <div className="acc-save-row">
             <input id="acc-save-name" type="text" maxLength={80} value={saveName} onChange={(e) => setSaveName(e.target.value)} placeholder={t('Place name, like Main library')} />
-            <button type="button" className="btn btn-outline" disabled={!saveName.trim()} onClick={savePlace}>{t('Save place')}</button>
+            <button type="button" className="btn btn-primary" disabled={!saveName.trim()} onClick={savePlace}>{t('Save place')}</button>
           </div>
           {note && <p className="field-hint" role="status">{note}</p>}
         </div>

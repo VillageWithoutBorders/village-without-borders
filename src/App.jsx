@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
+import Lanterns from './components/Lanterns'
 import HoverTips from './components/HoverTips'
 import PageErrorBoundary from './components/PageErrorBoundary'
 import { reloadFresh, hasUpdate } from './utils/freshApp'
@@ -6,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, Outlet } from 'rea
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { UnreadCountProvider } from './context/UnreadCountContext'
 import { NotificationsProvider } from './context/NotificationsContext'
+import AppIconBadge from './components/AppIconBadge'
 import Layout from './pages/Layout'
 import FirstVillage from './components/FirstVillage'
 import { needsFirstVillage } from './utils/firstVillage'
@@ -160,7 +162,9 @@ function PageLoading() {
     return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down) }
   }, [])
   return (
-    <div className="cal-page">
+    <div className="cal-page page-loading">
+      {/* Nov 24 (Jade): lanterns lighting one by one while the page loads. Not offline. */}
+      {online && <Lanterns count={3} mode="loop" />}
       <p className="cal-empty" role="status">
         {tr(online ? 'Loading...' : 'No signal right now. This page will open when your phone has signal.')}
       </p>
@@ -350,6 +354,7 @@ export default function App() {
             <AppRoutes />
             <AdminDialogHost />
             <HoverTips />
+            <AppIconBadge />
           </NotificationsProvider>
         </UnreadCountProvider>
       </AuthProvider>

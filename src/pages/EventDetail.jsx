@@ -676,7 +676,7 @@ export default function EventDetail({ id: idProp, embedded = false }) {
         {!embedded && <button onClick={() => goBack('/emergency')} aria-label={t('Back to emergency events')} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: '1.5rem', cursor: 'pointer', minWidth: 44, minHeight: 44 }}>&#8592;</button>}
         <div style={{ flex: 1 }}>
           <span style={{ background: 'var(--danger)', color: '#fff', fontSize: '0.8125rem', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>{event.event_type ? t(event.event_type) : ''}</span>
-          <h1 style={{ margin: '0.25rem 0 0', fontSize: '1.3rem' }}>{event.title}</h1>
+          <h1 style={{ margin: '0.25rem 0 0' }}>{event.title}</h1>
         </div>
       </div>
 

@@ -64,6 +64,7 @@
   --shadow: 0 2px 8px rgba(0,0,0,0.3);
   /* In rem so the top bar grows with the phone's text size instead of covering the page. */
   --header-height: 3.75rem;
+  --header-base: 3.75rem;
   --tab-height: 60px;
 }
 
@@ -178,7 +179,7 @@ body {
 }
 
 .app-header-inner {
-  height: 100%;
+  height: var(--header-base, 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -821,11 +822,10 @@ textarea { font-family: inherit; }
 }
 
 .home-more-label {
-  font-size: 0.8125rem;
+  /* Nov 20 (Jade): normal case like the other headings, and big enough to read. */
+  font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
+  color: var(--text-strong, var(--text));
   margin: 0 0 0.5rem;
 }
 
@@ -3133,7 +3133,7 @@ a:focus:not(:focus-visible) {
 }
 
 .cal-card-meta {
-  font-size: 0.85rem;
+  font-size: 0.9375rem;
   color: var(--text-secondary);
 }
 
@@ -3836,11 +3836,9 @@ input[aria-invalid='true'], select[aria-invalid='true'], textarea[aria-invalid='
 
 .groups-section {
   margin: 1.25rem 0 0.5rem;
-  font-size: 0.8125rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .groups-card {
@@ -5235,10 +5233,11 @@ input[aria-invalid='true'], select[aria-invalid='true'], textarea[aria-invalid='
 /* ---------- Home: need nearby, smaller and calmer ---------- */
 .home-need { margin: 0 0 1rem; }
 .home-need-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
-@media (min-width: 480px) { .home-need-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* Nov 20 (Jade): four across only when there is room, so "This week or later" doesn't wrap to three lines. */
+@media (min-width: 640px) { .home-need-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .home-need-tile { min-height: 56px; min-width: 0; display: flex; align-items: baseline; gap: 0.45rem; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text-soft); font: inherit; text-align: left; cursor: pointer; }
 .home-need-num { font-size: 1.25rem; font-weight: 800; }
-.home-need-label { font-size: 0.85rem; color: var(--text-secondary); }
+.home-need-label { font-size: 1rem; color: var(--text-secondary); }
 .home-need-quiet { display: flex; align-items: center; gap: 0.5rem; width: 100%; min-height: 48px; margin: 0 0 1rem; padding: 0.5rem 0.85rem; border: 1px dashed var(--border-strong); border-radius: 10px; background: none; color: var(--text-secondary); font: inherit; font-size: 0.95rem; text-align: left; cursor: pointer; }
 .home-need-tile:focus-visible, .home-need-quiet:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .home-need-tile:active, .home-need-quiet:active { transform: scale(0.98); }
@@ -6108,7 +6107,9 @@ html.simple .tab-item.active::before { width: 44px; margin-left: -22px; height: 
 /* ---------- My trail (pages/Trail.jsx) ---------- */
 .tr-title { font-size: 1.375rem; color: var(--accent); margin: 0.25rem 0 0.5rem; }
 .tr-facts { list-style: none; padding: 0; margin: 1rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem; }
-.tr-facts li { padding: 0.625rem 0.75rem; border: 1px solid var(--border); border-radius: 12px; background: var(--white); font-size: 0.9375rem; color: var(--text-secondary); }
+.tr-facts li { border: 1px solid var(--border); border-radius: 12px; background: var(--white); font-size: 0.9375rem; }
+.tr-facts a { display: block; min-height: 44px; height: 100%; box-sizing: border-box; padding: 0.625rem 0.75rem; border-radius: 12px; color: var(--text-secondary); text-decoration: none; }
+.tr-facts a:hover, .tr-facts a:focus-visible { background: var(--surface-2, transparent); color: var(--text); }
 .tr-facts b { display: block; font-size: 1.375rem; color: var(--gold); }
 .tr-path { list-style: none; padding: 0; margin: 1rem 0 0; position: relative; }
 .tr-path::before { content: ''; position: absolute; left: 21px; top: 22px; bottom: 22px; border-left: 3px dotted var(--gold); }
@@ -6255,6 +6256,8 @@ a.btn { text-decoration: none; }
 .hub-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0.75rem 0; }
 .hub-tabs > button { width: 100%; }
 @media (min-width: 600px) { .hub-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Nov 24: Simple view has four tabs, so two rows of two at every width. */
+html.simple .hub-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .msg-new-row { display: flex; align-items: flex-start; gap: 0.5rem; }
 .msg-new-main { flex: 1; min-width: 0; }
 .msg-gear { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 10px; border: 2px solid var(--border); background: var(--white); cursor: pointer; }
@@ -6376,7 +6379,8 @@ input[type="radio"], input[type="checkbox"] { accent-color: var(--accent); }
 .tab-item-btn { position: relative; }
 .tab-badge-admin { background: #f2c763; color: #2a2004; border: 2px solid var(--white, #fff); }
 .feed-empty-icon .vwb-icon { width: 64px; height: 64px; vertical-align: 0; }
-.vm-tap { color: var(--accent); font-weight: 600; }
+/* Nov 20 (Jade): its own line, so it doesn't run into the neighbor count. */
+.vm-tap { display: block; margin-top: 2px; color: var(--accent); font-weight: 600; }
 .sh-village { margin: 0 0 1rem; }
 .sh-groups { padding: 1rem; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
 .sh-groups h2 { margin: 0 0 0.1rem; font-size: 1.15rem; color: var(--text-strong); }
@@ -6813,7 +6817,7 @@ html.calm-motion .nr-card:active { transform: none; }
 .today-slim-warn b { color: var(--gold); }
 .today-slim-text { flex: 1; min-width: 0; }
 .today-slim-text b { display: block; font-size: 1rem; }
-.today-slim-text small { display: block; font-size: 0.875rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.today-slim-text small { display: block; font-size: 0.95rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .today-slim-go { font-size: 1.4rem; color: var(--text-muted); }
 .today-slim:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .today-slim:active { transform: scale(0.99); }
@@ -7617,7 +7621,7 @@ html.simple .tab-icon-pic, html.simple .tab-icon-pic .vwb-icon { width: 2rem; he
    width instead of growing taller, so the maps and pages keep their size.
    ============================================================ */
 @media (min-width: 1024px) {
-  html.text-large, html.text-larger, html.text-largest { --header-height: 2.9rem; --tab-height: calc(1.625rem + 20px); }
+  html.text-large, html.text-larger, html.text-largest { --header-height: 2.9rem; --header-base: 2.9rem; --tab-height: calc(1.625rem + 20px); }
   html.text-large .app-header-inner, html.text-larger .app-header-inner, html.text-largest .app-header-inner,
   html.text-large .bottom-tabs-inner, html.text-larger .bottom-tabs-inner, html.text-largest .bottom-tabs-inner { max-width: 1240px; }
   html.text-large .header-nav .header-btn, html.text-larger .header-nav .header-btn, html.text-largest .header-nav .header-btn { flex-direction: row; gap: 0.4rem; padding: 4px 12px 0; min-height: 0; }
@@ -7787,7 +7791,7 @@ button[role="switch"]::after { content: ""; position: absolute; inset: -11px -4p
    its word, at every text size (it was only at Large and up). Phones keep the picture
    above the word, since five words side by side don't fit a phone. */
 @media (min-width: 1024px) {
-  html { --header-height: 2.9rem; --tab-height: calc(1.625rem + 20px); }
+  html { --header-height: 2.9rem; --header-base: 2.9rem; --tab-height: calc(1.625rem + 20px); }
   .app-header-inner, .bottom-tabs-inner { max-width: 1240px; }
   .header-nav .header-btn { flex-direction: row; gap: 0.4rem; padding: 4px 12px 0; min-height: 0; max-width: none; }
   .tab-item { flex-direction: row; justify-content: center; gap: 0.5rem; padding: 4px 8px; }
@@ -7918,9 +7922,16 @@ html.vv-zoomed .what-btn { display: none; }
    2. The banner at the top of every page while an emergency they can act on is open. */
 .corner-emergency {
   display: flex; align-items: center; gap: 0.75rem; width: 100%; min-height: 56px; margin: 0 0 1rem; padding: 0.5rem 1rem;
-  border: 2px solid var(--warn); border-radius: 12px; background: var(--warn); color: var(--bg);
+  border: 2px solid var(--warn); border-radius: 12px; background: var(--warn-bg); color: var(--text-strong);
   font-size: 1.125rem; text-decoration: none; box-sizing: border-box;
 }
+/* Nov 22 (Jade): calm when nothing is open. Bright orange only when an emergency is open or waiting for a check. */
+.corner-emergency.corner-emergency-live { background: var(--warn); color: var(--bg); }
+.corner-count { flex: none; min-width: 1.75rem; height: 1.75rem; padding: 0 0.4rem; margin-left: auto; border-radius: 999px; box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center; background: var(--gold); color: #1a1a1a; font-weight: 800; font-size: 0.95rem; }
+.corner-count + .corner-arrow { margin-left: 0.5rem; }
+.corner-roles-in-list { width: 100%; border-bottom: 1px solid var(--border); }
+.corner-roles-in-list .corner-item-text { flex: 1; min-width: 0; }
 .corner-emergency > img, .corner-emergency > svg { flex: none; }
 .corner-emergency b { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .corner-emergency-go { flex: none; font-size: 1.4rem; }
@@ -8199,6 +8210,15 @@ html.calm-motion .read-bar-btn:not(:disabled):active { transform: none; }
 .notification-mute { min-height: 44px; min-width: 44px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border-strong); background: transparent; color: var(--text-secondary); font-size: .875rem; font-weight: 600; cursor: pointer; }
 .notification-mute:hover, .notification-mute:focus-visible { color: var(--text-strong); border-color: var(--accent); }
 .notification-mute:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+/* Nov 20 (Jade): one ⋯ button holds Flag and Mute. */
+.notification-more { min-width: 44px; min-height: 44px; border: none; border-radius: 10px; background: none; color: var(--text-secondary); font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.notification-more:hover, .notification-more[aria-expanded="true"] { background: var(--surface-2); color: var(--text-strong); }
+.notification-more:focus-visible, .notification-delete:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.nt-menu-scrim { position: fixed; inset: 0; z-index: 199; background: transparent; border: none; padding: 0; cursor: default; }
+.nt-menu { min-width: 240px; max-width: calc(100vw - 16px); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); padding: 4px; }
+.nt-menu-item { display: flex; align-items: center; gap: 0.6rem; width: 100%; min-height: 48px; padding: 0.5rem 0.75rem; border: none; border-radius: 8px; background: none; color: var(--text); font: inherit; font-size: 1rem; text-align: left; cursor: pointer; }
+.nt-menu-item:hover, .nt-menu-item:focus-visible { background: var(--surface-2); }
+.nt-menu-item:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
 .notif-mute-note { margin: 8px 0; padding: 8px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--accent); overflow-wrap: anywhere; }
 .notif-mute-note .link-button { min-height: 44px; font-weight: 700; }
 .alert-choices { border: 0; padding: 0; margin: 0; display: grid; gap: 8px; min-width: 0; }
@@ -8421,3 +8441,144 @@ html.text-largest .plan-slot-row { grid-template-columns: 1fr; }
 .wn-board-link b, .wn-board-link small { display: block; }
 .wn-board-link small { color: var(--text-secondary); font-size: 0.875rem; }
 @media (prefers-reduced-motion: reduce) { .wn-board-link:active { transform: none; } }
+
+/* Nov 20 (Jade): "More organizers (2)" on Calendar looks like something you can tap. */
+.cal-more-orgs { margin: 0.5rem 0; }
+.cal-more-orgs > summary {
+  list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  min-height: 48px; padding: 0.5rem 1rem; box-sizing: border-box;
+  border: 1px solid var(--border-strong); border-radius: 12px; background: var(--surface);
+  color: var(--text); font-weight: 700; font-size: 1rem; cursor: pointer;
+}
+.cal-more-orgs > summary::-webkit-details-marker { display: none; }
+.cal-more-orgs > summary::after { content: '\25BE'; font-size: 1.1rem; color: var(--text-secondary); }
+.cal-more-orgs[open] > summary { margin-bottom: 0.5rem; }
+.cal-more-orgs[open] > summary::after { content: '\25B4'; }
+.cal-more-orgs > summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Nov 24 (Jade): Settings on a computer. Row 1 is only as tall as the left side, so
+   Your avatar and cottage sits right under Seeing with no empty gap. The four story
+   cards go two by two instead of three and one. Alert choices get the same side
+   space as everything else in their card. */
+@media (min-width: 1024px) {
+  .settings-cols { grid-template-rows: auto 1fr; }
+  .settings-cols > .settings-col:nth-child(3) { align-self: start; }
+}
+@media (min-width: 480px) {
+  .settings-col .story-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.alert-choices > .alert-choice, .alert-choices .news-email-switch { margin-left: 10px; margin-right: 10px; }
+.alert-choices .news-email-switch { margin-bottom: 10px; }
+
+/* Nov 24 (Jade): Messages. Your offers waiting for an answer are one row that opens the list. */
+.msg-out-toggle { display: flex; align-items: center; gap: 0.6rem; width: 100%; min-height: 48px; padding: 0.5rem 1rem; margin-bottom: 0.5rem;
+  border: 1px solid var(--warn); border-radius: 12px; background: var(--warn-bg); color: var(--text-strong); font: inherit; font-weight: 700; text-align: left; cursor: pointer; }
+.msg-out-toggle .msg-out-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.msg-out-toggle:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+/* Nov 24 (Jade, same frame on every page): every page title is one size, weight and color.
+   Chat headers keep their short row, and the painted world pages keep their own colors.
+   The bigger-text rules above still shrink titles with !important. */
+.app-main:not(.app-main-world) h1:not(.convo-header h1):not(.cf-head h1):not([role="dialog"] h1):not(.tour-sheet h1):not(.print-head h1) {
+  font-size: 1.5rem; font-weight: 800; line-height: 1.2; color: var(--text-strong);
+}
+
+/* Nov 24: the Help tabs row starts with the round Back arrow ("All help"). */
+.help-switch-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 0 0.75rem; }
+.help-switch-row > .help-switch { flex: 1 1 auto; min-width: 0; margin: 0; }
+.help-switch-back { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%;
+  background: #1f4a47; color: #fff; font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+.help-switch-back:hover { background: #163936; }
+.help-switch-back:active { transform: scale(0.97); }
+.help-switch-back:focus-visible { outline: 3px solid #e8b84a; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .help-switch-back:active { transform: none; } }
+
+/* Nov 24 (Jade): Scan a code opens the camera inside the pop-up. */
+.scan-cam { position: relative; width: 100%; max-width: 22rem; margin: 0.5rem auto 0.75rem; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden; background: #000; }
+.scan-cam video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scan-frame { position: absolute; inset: 18%; border: 3px solid #e8b84a; border-radius: 12px; box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.35); pointer-events: none; }
+
+/* Nov 24: QR code choice from the app icon menu. Two big buttons, stacked. */
+.qr-choice { display: grid; gap: 0.75rem; margin: 0.75rem 0; }
+.qr-choice-btn { min-height: 56px; gap: 0.5rem; font-size: 1.05rem; }
+
+/* Nov 24 (Jade): lanterns lighting each other (components/Lanterns.jsx). */
+.lanterns { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.connect-lanterns { width: 200px; margin: 0.25rem auto 0.5rem; }
+.page-loading { display: flex; flex-direction: column; align-items: center; padding-top: 2rem; }
+.page-loading .lanterns { width: 240px; }
+/* My story: each step on the path is a lantern. They light one after another down the path;
+   "Where to next?" waits unlit. With less motion they are simply lit. */
+.tr-stop:not(.tr-next) .tr-dot {
+  border-radius: 12px 12px 14px 14px; border-color: #c9a24a;
+  background: rgba(243, 195, 90, 0.26); box-shadow: 0 0 12px rgba(243, 195, 90, 0.35);
+  animation: tr-light 0.5s ease both; animation-delay: calc(var(--i, 0) * 140ms);
+}
+.tr-dot::before { content: ''; position: absolute; top: -7px; left: 50%; width: 18px; height: 6px; transform: translateX(-50%); background: #5a4632; border-radius: 3px 3px 0 0; }
+.tr-next .tr-dot { border-radius: 12px 12px 14px 14px; }
+@keyframes tr-light {
+  from { background: var(--surface-2, var(--white)); box-shadow: none; }
+  to { background: rgba(243, 195, 90, 0.26); box-shadow: 0 0 12px rgba(243, 195, 90, 0.35); }
+}
+html.calm-motion .tr-stop .tr-dot { animation: none; }
+@media (prefers-reduced-motion: reduce) { .tr-stop .tr-dot { animation: none; } }
+
+/* Nov 24 (Jade): Put the app on your home screen, a short guide. */
+.install-now { min-height: 52px; gap: 0.5rem; margin: 0.25rem 0 0.5rem; }
+.install-or { margin: 0.25rem 0; }
+.install-steps { margin: 0.25rem 0 0.75rem; padding-left: 1.5rem; display: grid; gap: 0.5rem; font-size: 1rem; line-height: 1.45; color: var(--text); }
+.install-note, .install-tip { margin: 0 0 0.75rem; padding: 0.6rem 0.75rem; border-radius: 10px; font-size: 0.95rem; line-height: 1.45; color: var(--text); }
+.install-note { background: var(--surface-2, transparent); border: 1px solid var(--border); }
+.install-tip { border: 1px dashed var(--gold); }
+
+/* Nov 24 (Jade): Places. On the World, Village and Cottage pages the top bar has a
+   second row: World, Village, Cottage, rounded like the Messages tabs. The bar grows
+   by that row, and --header-height grows with it, so the pages below still fit. */
+html.places-on { --places-h: 50px; --header-height: calc(var(--header-base) + var(--places-h)); }
+.places-row { height: var(--places-h, 52px); display: flex; align-items: center; padding: 0 0.5rem 6px; box-sizing: border-box; }
+.places-switch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 600px; margin: 0 auto; }
+.places-switch-btn {
+  min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 8px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1); color: #fff; font-weight: 700; font-size: 1rem; text-decoration: none; min-width: 0;
+}
+.places-switch-btn > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.places-switch-btn:hover { background: rgba(255, 255, 255, 0.18); }
+.places-switch-btn.on { background: var(--accent); color: var(--on-accent); }
+.places-switch-btn:active { transform: scale(0.97); }
+.places-switch-btn:focus-visible { outline: 3px solid #e8b84a; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .places-switch-btn:active { transform: none; } }
+@media (max-width: 359px) { .places-switch-btn { font-size: 0.9rem; gap: 4px; padding: 0 4px; } }
+@media (min-width: 1024px) { .places-switch { max-width: 720px; } }
+
+/* Nov 24 (Jade): the phone row is a drawer under the open Places tab: the same color as the
+   open tab (the page color), full width and touching it. */
+.places-row { background: var(--bg); padding: 3px 8px; height: var(--places-h, 50px); }
+.places-switch { max-width: none; gap: 6px; }
+.places-switch-btn { background: var(--surface-2); color: var(--text-soft); }
+.places-switch-btn:hover { background: var(--surface-2); color: var(--text); }
+.places-switch-btn.on { background: var(--accent); color: var(--on-accent); }
+@media (min-width: 1024px) { .places-switch { max-width: none; } }
+/* Computers: World, Village and Cottage are joined right in the top bar, where Places was.
+   One soft block holds the three, so they read as one group; the open one looks like an open tab. */
+.places-inline { flex: 3 1 0; display: flex; gap: 0; min-width: 0; border-radius: 12px 12px 0 0; background: rgba(255, 255, 255, 0.07); }
+.places-inline > .header-btn.places-seg { flex: 1 1 0; max-width: none; background: none; border-radius: 12px 12px 0 0; }
+.places-inline > .header-btn.places-seg + .places-seg { box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.12); }
+.places-inline > .header-btn.places-seg:hover { background: rgba(255, 255, 255, 0.08); }
+.places-inline > .header-btn.places-seg.on { background: var(--bg); color: var(--text-strong); box-shadow: inset 0 4px 0 #e0b85a; }
+.places-inline > .header-btn.places-seg.on .header-btn-label { color: var(--text-strong); }
+/* Nov 24: the joined Places buttons are as tall as the other top bar tabs, and line up with them. */
+.header-nav > .places-inline { align-self: stretch; margin-top: 6px; }
+.places-inline > .header-btn.places-seg { align-self: stretch; padding-top: 6px; }
+/* Nov 24: the keyboard ring on World, Village and Cottage is a soft gold line inside the tab,
+   so the open tab still shows its gold stripe and doesn't look like a white box. */
+.places-inline > .header-btn.places-seg:focus-visible { outline: 2px solid #e0b85a; outline-offset: -6px; }
+/* Nov 24 (Jade): every top bar tab gets the soft gold keyboard ring, not a white box. */
+.header-nav .header-btn:focus-visible { outline: 2px solid #e0b85a; outline-offset: -6px; }
+/* Nov 24 (Jade): with fewer tabs, they don't stretch across the whole bar on a computer.
+   Each tab has a sensible width and the row sits in the middle. The joined World, Village,
+   Cottage group is about three tabs wide. */
+@media (min-width: 1024px) {
+  html:not(.simple) .app-header-inner.header-nav { justify-content: center; gap: 4px; }
+  html:not(.simple) .header-nav > .header-btn, html:not(.simple) .header-nav > .app-menu { flex: 0 1 220px; }
+  html:not(.simple) .header-nav > .places-inline { flex: 0 1 600px; }
+}

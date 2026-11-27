@@ -46,7 +46,7 @@ export default function VillageScene() {
     // Nov 10 map review: no Me spot (My Cottage is on the top bar), one place for groups and crews,
     // and Help nearby only in the Simple view list.
     : VILLAGE_SPOTS.filter((v) => simple || !v.simpleOnly)
-  const { unreadCount } = useUnreadCount()
+  const { chatUnread: privateUnread } = useUnreadCount()
   // The You button and old /me links open the cottage at Your corner (Oct 22).
   useEffect(() => {
     const spot = window.location.hash.slice(1)
@@ -104,6 +104,12 @@ export default function VillageScene() {
     setParams({}, { replace: true })
     b.openArrange(null)
   }, [cottage]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Nov 19: Messages > Campfires links here with ?sheet=campfires to open that sheet.
+  useEffect(() => {
+    if (cottage || params.get('sheet') !== 'campfires') return
+    setParams({}, { replace: true })
+    openSheet({ k: 'campfires' })
+  }, [cottage, id]) // eslint-disable-line react-hooks/exhaustive-deps
   // The tour and other first-run questions wait while you arrange your cottage.
   const arrangeSoon = cottage && (arrange || params.get('arrange') === '1')
   useEffect(() => { pauseFirstRun(arrangeSoon); return () => pauseFirstRun(false) }, [arrangeSoon])
@@ -416,7 +422,7 @@ export default function VillageScene() {
       // Nov 10 (map review): one place each for villages, groups and crews, and chats.
       case 'villages': return { sub: home?.village_id ? (visits.length ? t('{home} and {n} more', { home: home.name, n: visits.length }) : home.name) : home ? t('Find or start your home village') : t('Loading...') }
       case 'chats': {
-        const n = unreadCount + chatsNew
+        const n = privateUnread + chatsNew
         return { sub: n ? t('{n} new', { n }) : t('Messages, village chats, and Campfires'), badge: n, lantern: n ? t('{n} new', { n }) : '' }
       }
       case 'visits': return { sub: visits.length ? (visits.length === 1 ? t('1 village where you are a guest') : t('{n} villages where you are a guest', { n: visits.length })) : t('Villages you visit show up here') }
@@ -431,7 +437,7 @@ export default function VillageScene() {
         ? { sub: [offersWaiting ? (offersWaiting === 1 ? t('1 neighbor offered to help.') : t('{n} neighbors offered to help.', { n: offersWaiting })) : '', yourTurn ? (yourTurn === 1 ? t('1 task is waiting on you.') : t('{n} tasks are waiting on you.', { n: yourTurn })) : ''].filter(Boolean).join(' '), badge: offersWaiting + yourTurn, lantern: offersWaiting ? t('Say yes?') : t('Your turn') }
         : { sub: t('Find resources, ask for help, or help a neighbor') }
       case 'me': return { sub: t('Your profile, vouches, and settings') }
-      case 'messages': return { sub: unreadCount ? t('{n} unread', { n: unreadCount }) : t('Requests and private messages'), badge: unreadCount, lantern: unreadCount ? t('{n} new', { n: unreadCount }) : '' }
+      case 'messages': return { sub: privateUnread ? t('{n} unread', { n: privateUnread }) : t('Requests and private messages'), badge: privateUnread, lantern: privateUnread ? t('{n} new', { n: privateUnread }) : '' }
       default: return { sub: '' }
     }
   }
@@ -545,7 +551,7 @@ export default function VillageScene() {
       case 'skillshare': return { sub: t('Help nearby: requests and offers') }
       case 'neighbors': return { sub: village && village.member_count ? t('{n} neighbors live here', { n: village.member_count }) : t('A few neighbors so far') }
       case 'cottage': return { sub: t('Private chats with people you chose') }
-      case 'messages': return { sub: unreadCount ? t('{n} unread', { n: unreadCount }) : t('Requests and private messages'), badge: unreadCount }
+      case 'messages': return { sub: privateUnread ? t('{n} unread', { n: privateUnread }) : t('Requests and private messages'), badge: privateUnread }
       case 'orgs': {
         const c = orgs.filter((o) => o.kind === 'group').length, g = orgs.length - c
         const parts = [g ? (g === 1 ? t('1 group') : t('{n} groups', { n: g })) : '', c ? (c === 1 ? t('1 crew') : t('{n} crews', { n: c })) : ''].filter(Boolean)
@@ -846,12 +852,17 @@ export default function VillageScene() {
           </div>
         )}
         {/* Your cottage: Today (what needs you, shortcuts, coming up) sits right under the map (Oct 22). */}
-        {cottage && <section id="today" className="vs-panel vs-today" aria-label={t('Today')}><Dashboard embedded /></section>}
+        {/* Nov 24 (Jade): Groups and crews sits in the Do something column. Villages, Chats and
+            Help are not repeated here: the top bar (Places) and the bottom bar already have them.
+            They stay on the cottage map. Simple view keeps its list. */}
+        {cottage && <section id="today" className="vs-panel vs-today" aria-label={t('Today')}>
+          <Dashboard embedded extra={!simple ? <div className="vs-list today-do-list">{SPOTS.filter((s) => s.k === 'orgs').map(roomRow)}</div> : null} />
+        </section>}
         {!cottage && <div className="vs-help">
           <button type="button" className="vs-big vs-find" onClick={() => navigate('/ask')}>{t('Ask for Help')}</button>
           <button type="button" className="vs-big vs-offer" onClick={() => navigate('/skillshare')}>{t('Offer Help')}</button>
         </div>}
-        <h2 className="vs-pick-h">{t('Or pick from the list')}</h2>
+        {!(cottage && !simple) && <h2 className="vs-pick-h">{t('Or pick from the list')}</h2>}
         {/* Simple view (Oct 27): the main places first, the rest folded under More. */}
         {simple ? <>
           <div className="vs-list">{SPOTS.filter((s) => simpleMain.includes(s.k)).sort((a, b) => simpleMain.indexOf(a.k) - simpleMain.indexOf(b.k)).map(roomRow)}</div>
@@ -861,7 +872,7 @@ export default function VillageScene() {
               <div className="vs-list">{SPOTS.filter((s) => !simpleMain.includes(s.k)).map(roomRow)}</div>
             </details>
           )}
-        </> : <div className="vs-list">{SPOTS.map(roomRow)}</div>}
+        </> : !cottage && <div className="vs-list">{SPOTS.map(roomRow)}</div>}
         {/* Your cottage already has Calendar in its list, so no separate Events button there (Nov 8). */}
         {/* Oct 28 (Jade): My Corner is no longer repeated under the cottage map. The My Corner button opens it. */}
       </div>

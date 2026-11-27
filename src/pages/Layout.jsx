@@ -1,6 +1,5 @@
-import Icon from '../components/Icon'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { needsFullSetup } from '../utils/startPath'
 import { applyPrefs, devicePrefs, savePrefs } from '../utils/uiPrefs'
 import { firstRunPaused } from '../utils/firstVillage'
@@ -15,19 +14,21 @@ import EmergencyBanner from '../components/EmergencyBanner'
 import { useT } from '../utils/lang'
 import BottomTabs from '../components/BottomTabs'
 import MeButton, { MyCornerButton } from '../components/MeButton'
-import TabName from '../components/TabName'
+import { useWideScreen } from '../hooks/useWideScreen'
+import { PlacesTab, PlacesSwitch, isPlacePath, useRememberPlace } from '../components/Places'
 import AlertsButton from '../components/AlertsButton'
 import WhatButton from '../components/WhatButton'
 import QrSheetHost from '../components/QrSheet'
 import { useAdminInbox } from '../hooks/useAdminInbox'
 import AppTour from '../components/AppTour'
 import KeyRestorePrompt from '../components/KeyRestorePrompt'
-import { PageBackContext, FrameBack } from '../components/BackLink'
+import { PageBackContext, PageBackToContext, FrameBack } from '../components/BackLink'
 import { calmMotion } from '../utils/motion'
 import { useTitleRow } from '../hooks/useTitleRow'
 import { readReadButton } from '../utils/readButton'
 import { usePrefsRefresh } from '../hooks/usePrefsRefresh'
 import { resyncPush } from '../utils/pushUtils'
+import { setNewAccount } from '../utils/plainWords'
 
 export default function Layout() {
   const { pathname, search, key } = useLocation()
@@ -37,6 +38,11 @@ export default function Layout() {
   // after Find your village. "Skip setup for now" on that page ends it.
   const setupNext = needsFullSetup(user, profile) && pathname !== '/setup' && !firstRunPaused(pathname)
   useEffect(() => { if (setupNext) navigate('/setup', { replace: true }) }, [setupNext]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Plain words (Nov 24): on by themselves for an account's first 14 days.
+  useEffect(() => {
+    const made = profile?.created_at ? new Date(profile.created_at).getTime() : 0
+    setNewAccount(made > 0 && Date.now() - made < 14 * 24 * 60 * 60 * 1000)
+  }, [profile?.created_at])
   // The Admin inbox count shows on My Corner in the top bar (Nov 10). Role tools live there.
   const { total: adminWaiting, urgent: adminUrgent } = useAdminInbox()
   const simple = useSimpleView()
@@ -78,7 +84,6 @@ export default function Layout() {
   // World pages (the globe, a village, an organization) fill the whole screen
   // with their own teal background, edge to edge.
   const isWorld = (pathname === '/' && !simple) || pathname === '/world' || pathname === '/cottage' || /^\/u\/[^/]+\/cottage$/.test(pathname) || /^\/village\/[^/]+$/.test(pathname) || /^\/orgs\/[^/]+$/.test(pathname)
-  const villageHere = pathname === '/village' || /^\/village\/[^/]+$/.test(pathname)
   const isChat = pathname === '/village-square' || pathname.startsWith('/conversation/') || /^\/groups\/[^/]+$/.test(pathname)
 
   // Back button on every page (Oct 22, Jade). Not on Home (the globe), and not on chats,
@@ -89,7 +94,9 @@ export default function Layout() {
   // Nov 10 (Jade, Round D rule, moved up for the space round): not on the bottom-bar pages
   // either (Ask for Help, Calendar, Messages). Their tab shows where you are.
   const bottomBarPage = ['/ask', '/calendar', '/messages'].includes(pathname)
-  const showBack = !ownBacks && !isChat && !bottomBarPage && pathname !== '/' && pathname !== '/me' && (simple || pathname !== '/world')
+  // Nov 24: a page's BackLink hands its way back here instead of drawing its own row.
+  const [backTo, setBackTo] = useState(null)
+  const showBack = backTo ? !isChat : !ownBacks && !isChat && !bottomBarPage && pathname !== '/' && pathname !== '/me' && (simple || pathname !== '/world')
 
   // Ask for Help is ready even if the signal drops later (Nov 3): its screen is
   // fetched once, quietly, a few seconds after the app opens, and kept on the phone.
@@ -160,6 +167,19 @@ export default function Layout() {
   // The steps have their own Back and "Skip setup for now".
   const focus = pathname === '/setup'
 
+  // Nov 24 (Jade): Places. On the World, Village and Cottage pages the top bar grows a
+  // second row with the switch. html.places-on makes --header-height count that row,
+  // so every page's own height math still fits (index.css, end).
+  // Computers: the switch sits in the top bar itself (no second row). Phones: the drawer row.
+  const placesHere = !focus && !simple && isPlacePath(pathname)
+  const wideBar = useWideScreen()
+  const placesRow = placesHere && !wideBar
+  useRememberPlace(pathname, placesHere)
+  useEffect(() => {
+    document.documentElement.classList.toggle('places-on', placesRow)
+    return () => document.documentElement.classList.remove('places-on')
+  }, [placesRow])
+
   // Nov 10 (Jade): Back and the ? share the page title's line (hooks/useTitleRow.js).
   const mainRef = useRef(null)
   useTitleRow(mainRef, pathname + search, focus || isChat || isWorld)
@@ -175,15 +195,9 @@ export default function Layout() {
             The bottom bar is actions: Ask for Help, Offer Help, Calendar, Messages. */}
         <nav className="app-header-inner header-nav" aria-label="Top menu">
           {!simple && (<>
-          <Link to="/world" className={'header-btn' + (pathname === '/world' ? ' on' : '')} aria-current={pathname === '/world' ? 'page' : undefined} aria-label={t('My World: your networks on the globe')} data-tip={t('My World: see your villages and groups on a map of the world.')} data-tour="top-home">
-            <img className="header-btn-logo" src="/images/vwb_header-v3.png" alt="" width="26" height="26" />
-            <TabName word="World" />
-          </Link>
-          <Link to="/village" className={'header-btn' + (villageHere ? ' on' : '')} aria-current={villageHere ? 'page' : undefined} aria-label={t('My Village: your home village')} data-tip={t('My Village: your home village. Its chat, neighbors, groups, rules, and sister villages.')} data-tour="top-village">
-            <Icon name="houses" size={26} className="header-btn-pic" />
-            <TabName word="Village" />
-          </Link>
-          <MeButton />
+          {/* Nov 24 (Jade): fewer tabs. World, Village and Cottage are one Places tab;
+              on those pages a second row switches between them (components/Places.jsx). */}
+          {placesHere && wideBar ? <PlacesSwitch inline /> : <PlacesTab />}
           <MyCornerButton adminWaiting={adminWaiting} adminUrgent={adminUrgent} />
           <AlertsButton />
           </>)}
@@ -192,6 +206,7 @@ export default function Layout() {
           {simple && <MeButton adminWaiting={adminWaiting} adminUrgent={adminUrgent} />}
           {simple && <AlertsButton />}
         </nav>
+        {placesRow && <div className="places-row"><PlacesSwitch /></div>}
       </header>}
       <main ref={mainRef} className={'app-main' + (!focus && !isChat ? ' app-main-what' : '') + (isChat ? ' app-main-chat' : '') + (isWorld ? ' app-main-world' : '') + (isAdminPage ? ' app-main-admin' : '') + (focus ? ' app-main-focus' : '')}>
         {/* Nov 10 (Round A3): an open emergency you can act on, at the top of every page. Not in setup. */}
@@ -199,14 +214,16 @@ export default function Layout() {
         {/* Read this to me (Nov 3, barriers review): Simple view pages, next to Back.
             Not on chats or the maps. */}
         {showBack
-          ? <FrameBack world={isWorld}>{reader && !isChat && !isWorld && <ReadAloud />}</FrameBack>
+          ? <FrameBack world={isWorld} to={backTo}>{reader && !isChat && !isWorld && <ReadAloud />}</FrameBack>
           : reader && !isChat && !isWorld && <div className="app-back-row read-aloud-row"><ReadAloud /></div>}
         {/* Emergency reports (Nov 5) and requests (Nov 3) saved with no signal: waiting, sending, or sent. */}
         {!isChat && !isWorld && <PendingReports />}
         {!isChat && !isWorld && <PendingAsks />}
         <QrSheetHost />
         <PageBackContext.Provider value={tellFrame}>
-          <Outlet />
+          <PageBackToContext.Provider value={setBackTo}>
+            <Outlet />
+          </PageBackToContext.Provider>
         </PageBackContext.Provider>
         {/* What is this? (Nov 10): not in setup, and not on chats, where it would sit on the typing box.
             Inside the page so it can sit at the end of the title's line. */}

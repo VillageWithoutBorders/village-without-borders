@@ -15,6 +15,7 @@ import { useSimpleView } from '../utils/simpleView'
 import SimpleViewPicker from '../components/SimpleViewPicker'
 import TextSizePicker from '../components/TextSizePicker'
 import MotionPicker from '../components/MotionPicker'
+import PlainWordsPicker from '../components/PlainWordsPicker'
 import LanguagePicker from '../components/LanguagePicker'
 import { useT, getLang } from '../utils/lang'
 import AreaPicker from '../components/AreaPicker'
@@ -426,6 +427,10 @@ export default function Settings() {
           {simpleOn && <WidthPicker />}
           {!simpleOn && <ReadButtonPicker />}
           <MotionPicker />
+          <PlainWordsPicker />
+
+          {/* Nov 24 (Jade): alerts get their own heading instead of sitting under Using. */}
+          <h2 className="settings-group-h">{t('Alerts and email')}</h2>
           <AlertChoices />
           </div>
 

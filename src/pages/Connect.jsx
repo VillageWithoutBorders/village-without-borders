@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Lanterns from '../components/Lanterns'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../supabaseClient'
@@ -78,7 +79,7 @@ export default function Connect() {
         {user && state === 'notfound' && (
           <div className="login-form">
             <p className="form-error" role="alert">{t('This code is not working. It may be an old one. Ask your neighbor to show their code again.')}</p>
-            <button type="button" className="btn btn-outline btn-full" onClick={() => navigate('/', { replace: true })}>{t('Go to the app')}</button>
+            <button type="button" className="btn btn-primary btn-full" onClick={() => navigate('/', { replace: true })}>{t('Go to the app')}</button>
           </div>
         )}
 
@@ -107,13 +108,15 @@ export default function Connect() {
         {user && state === 'error' && !preview && (
           <div className="login-form">
             <p className="form-error" role="alert">{t('We could not check this code. Check your connection and try again.')}</p>
-            <button type="button" className="btn btn-outline btn-full" onClick={() => window.location.reload()}>{t('Try again')}</button>
+            <button type="button" className="btn btn-primary btn-full" onClick={() => window.location.reload()}>{t('Try again')}</button>
           </div>
         )}
 
         {state === 'done' && done && (
           <div className="login-form" role="status">
             {done.result === 'limit' && <p className="groups-note">{t('You made a lot of connections today. Try again tomorrow.')}</p>}
+            {/* Nov 24 (Jade): your lantern lights theirs. Plays once; still with less motion. */}
+            {done.result !== 'limit' && <Lanterns count={2} mode="once" className="connect-lanterns" />}
             {done.result !== 'limit' && <h2>{done.result === 'already' ? t('You are connected') : t('You are connected!')}</h2>}
             {done.result !== 'limit' && done.chatId && <p className="groups-note">{t('Say hi to {name}. Your chat is ready.', { name })}</p>}
             {done.result !== 'limit' && !done.chatId && <p className="groups-note">{t('You can message each other once one of you has been vouched for by someone else or finished a task with someone.')}</p>}

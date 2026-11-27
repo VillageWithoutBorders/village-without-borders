@@ -307,7 +307,7 @@ export default function EventPage() {
             <p style={{ fontSize: '2rem', margin: '0 0 0.5rem' }} aria-hidden="true"><Icon name="lock" /></p>
             <p style={{ fontWeight: 700, color: 'var(--text)' }}>{t("This event isn't available")}</p>
             <p>{t('It may be private, it may have been removed, or the link may be old.')}</p>
-            {!user && <button type="button" className="btn btn-outline" style={{ minHeight: '44px' }} onClick={goSignIn}>{t('Log in to check')}</button>}
+            {!user && <button type="button" className="btn btn-primary" style={{ minHeight: '44px' }} onClick={goSignIn}>{t('Log in to check')}</button>}
           </div>
         </div>
       </div>
@@ -330,7 +330,7 @@ export default function EventPage() {
         {cancelled && <p className="cal-error" role="status"><strong>{t('This event was cancelled.')}</strong></p>}
 
         <p className="cal-sub" style={{ margin: 0 }}>{ev.organization_name ? hostedLine(t, ev.organization_name, partners) : 'Village Without Borders'}</p>
-        <h1 style={{ margin: '0.25rem 0 0.75rem', fontSize: '1.6rem', lineHeight: 1.25 }}>{ev.title}</h1>
+        <h1 style={{ margin: '0.25rem 0 0.75rem' }}>{ev.title}</h1>
 
         <div className="cal-detail-row">
           <span aria-hidden="true"><Icon name="calendar" /></span>

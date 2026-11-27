@@ -32,7 +32,10 @@ export default function PastTasks() {
       <div className="home-tasks-head"><h2 id="past-tasks-h"><Icon name="box" /> {t('Past tasks')}{rows ? ' (' + rows.length + ')' : ''}</h2></div>
       <p className="home-tasks-empty" style={{ marginTop: 0 }}>{t('Tasks move here once you have both said how it went. Only you can see this list.')}</p>
       {!rows && <p className="home-tasks-empty">{t('Loading...')}</p>}
-      {rows && rows.length === 0 && <p className="home-tasks-empty">{t('Nothing finished yet.')}</p>}
+      {rows && rows.length === 0 && <>
+        <p className="home-tasks-empty">{t('Nothing finished yet.')}</p>
+        <button type="button" className="btn btn-primary" style={{ minHeight: '44px' }} onClick={() => navigate('/skillshare')}>{t('See who needs a hand')}</button>
+      </>}
       {list.length > 0 && (
         <ul className="home-tasks-list">
           {list.map((item) => (

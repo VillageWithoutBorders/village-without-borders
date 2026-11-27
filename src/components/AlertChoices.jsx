@@ -9,7 +9,7 @@ import NewsEmailSwitch from './NewsEmailSwitch'
 // Round E part 2 (Nov 10): how phone alerts come. Everything still shows in the
 // Alerts list in the app. Emergencies and account safety alerts always come through.
 const MODES = [
-  { k: 'all', label: 'All alerts', sub: 'Every alert comes to your phone right away.' },
+  { k: 'all', label: 'All alerts', sub: 'Every alert comes to you right away.' },
   { k: 'quiet', label: 'Quiet', sub: 'Only private messages, your own help and events, and your groups’ Announcements.' },
   { k: 'daily', label: 'Once a day', sub: 'One alert each evening that says how many are waiting.' },
 ]
@@ -61,7 +61,7 @@ export default function AlertChoices() {
           <span><b>{t(m.label)}</b><small>{t(m.sub)}</small></span>
         </label>
       ))}
-      <p className="alert-choices-note">{t('Emergencies and account safety alerts always come through. Everything still shows in Alerts in the app.')}</p>
+      <p className="alert-choices-note" style={{ padding: '0 10px' }}>{t('Emergencies and account safety alerts always come through. Everything still shows in Alerts in the app.')}</p>
       <p className="alert-choices-note" style={{ marginTop: '0.75rem', paddingLeft: '10px' }}><b>{t('Email')}</b></p>
       <NewsEmailSwitch />
       {muted.length > 0 && (

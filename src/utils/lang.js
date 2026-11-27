@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { activeSkin, onSkinChange } from './skin'
 import { SKIN_WORDS, TAB_WORDS } from '../data/skinWords'
+import { plainOn, addPlain, onPlainChange } from './plainWords'
 
 // Language (Nov 3, barriers review): English or Spanish.
 // Words on screen go through t('English words'). In Spanish, t() looks the words
@@ -80,6 +81,9 @@ export function t(en, vars) {
   // Skins (Nov 11): a few place names change. Before {name} spots fill, so people's
   // own words (a cottage name, a message) are never changed.
   if (s && typeof s === 'string') { const sk = activeSkin(); if (sk !== 'home') s = skinSwap(en, s, sk) }
+  // Plain words (Nov 24): "Campfire (a team chat)" in sentences, for new people.
+  // Before {name} spots fill, so people's own words are never changed.
+  if (s && typeof s === 'string' && plainOn()) s = addPlain(s, lang)
   if (vars) for (const k of Object.keys(vars)) s = s.split('{' + k + '}').join(String(vars[k]))
   return s
 }
@@ -161,6 +165,7 @@ export function tabWord(en) {
 // const t = useT()
 export function useT() {
   // And when the skin changes (Nov 11), since a few place names follow it.
-  useSyncExternalStore((f) => { subs.add(f); const off = onSkinChange(f); return () => { subs.delete(f); off() } }, () => version + '|' + activeSkin(), () => '0|home')
+  // And when plain words turn on or off (Nov 24).
+  useSyncExternalStore((f) => { subs.add(f); const off = onSkinChange(f); const off2 = onPlainChange(f); return () => { subs.delete(f); off(); off2() } }, () => version + '|' + activeSkin() + '|' + plainOn(), () => '0|home|false')
   return t
 }

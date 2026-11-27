@@ -5,6 +5,7 @@ import { readCalm, applyCalm } from './motion'
 import { getLang, setLangLocal, LANGS } from './lang'
 import { readWidth, applyWidth, WIDTHS } from './pageWidth'
 import { readReadButton, applyReadButton, READ_CHOICES } from './readButton'
+import { plainChoice, setPlainChoice } from './plainWords'
 
 // Settings that follow you (Nov 1, Jade): Text size, Light or dark, and Motion are
 // saved on the account (helper_profiles.ui_prefs) as well as on this phone, so they
@@ -13,6 +14,7 @@ import { readReadButton, applyReadButton, READ_CHOICES } from './readButton'
 // (lang added Nov 3; needs vwb-language.sql so the account can save it)
 // (width: 'calm'|'full' added Nov 8; needs vwb-page-width.sql)
 // (read: 'off'|'on' added Nov 10, the Read this to me button in the full view; needs vwb-threads-and-read.sql)
+// (plain: 'auto'|'on'|'off' added Nov 24, Plain words; needs vwb-plain-words.sql)
 const OK = {
   text: TEXT_SIZES,
   theme: ['auto', 'light', 'dark'],
@@ -20,10 +22,11 @@ const OK = {
   lang: LANGS,
   width: WIDTHS,
   read: READ_CHOICES,
+  plain: ['auto', 'on', 'off'],
 }
 
 export function devicePrefs() {
-  return { text: readTextSize(), theme: getTheme(), motion: readCalm() ? 'calm' : 'normal', lang: getLang(), width: readWidth(), read: readReadButton() }
+  return { text: readTextSize(), theme: getTheme(), motion: readCalm() ? 'calm' : 'normal', lang: getLang(), width: readWidth(), read: readReadButton(), plain: plainChoice() }
 }
 
 // Put the account's choices on this phone.
@@ -34,6 +37,7 @@ export function applyPrefs(p) {
   if (OK.motion.includes(p.motion) && (p.motion === 'calm') !== readCalm()) applyCalm(p.motion === 'calm')
   if (OK.width.includes(p.width) && p.width !== readWidth()) applyWidth(p.width)
   if (OK.read.includes(p.read) && p.read !== readReadButton()) applyReadButton(p.read)
+  if (OK.plain.includes(p.plain) && p.plain !== plainChoice()) setPlainChoice(p.plain)
   if (OK.lang.includes(p.lang) && p.lang !== getLang()) {
     setLangLocal(p.lang).then(() => window.dispatchEvent(new Event('vwb:prefs')))
   }

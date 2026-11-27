@@ -156,12 +156,20 @@ export default function Groups({ embedded = false, show: showProp = 'all', onOpe
           {!embedded && <h1>{show === 'campfires' ? t('Your Campfires') : show === 'cottage' ? t('Your Cottage Chats') : t('Your group chats')}</h1>}
           {isSimpleView()
             ? <p className="groups-sub">{t('Chats with a few people you chose. Only the people in a chat can read it.')}</p>
+            : show === 'campfires' ? <p className="groups-sub"><Icon name="campfire" /> {t('Campfire: gather round and let your voices be heard.')}</p>
+            : show === 'cottage' ? <p className="groups-sub"><Icon name="cottage" /> {t("Cottage Chat: take a seat, let it out. You're safe here.")}</p>
             : <p className="groups-sub"><Icon name="cottage" /> {t("Cottage Chat: take a seat, let it out. You're safe here.")} <Icon name="campfire" /> {t('Campfire: gather round and let your voices be heard.')}</p>}
         </div>
       </div>
 
       {show === 'campfires' ? (
-        <p className="groups-sub">{t('Campfires start in a village or a group. Open your village map and tap Campfires.')}</p>
+        // Nov 19 (Jade): a button straight to your village's Campfires, not only directions.
+        <>
+          <p className="groups-sub">{t('Campfires start in a village or a group.')}</p>
+          <button type="button" className="btn btn-primary btn-full groups-start-btn" onClick={() => navigate('/village?sheet=campfires')}>
+            + {t('Start a Campfire in my village')}
+          </button>
+        </>
       ) : !showStart ? (
         established === false ? (
           <p className="new-account-note" role="status">{t(NEW_ACCOUNT_NOTE)} {t('A member can still invite you to their Cottage Chat.')}</p>
@@ -233,11 +241,14 @@ export default function Groups({ embedded = false, show: showProp = 'all', onOpe
       {!loading && (
         <section className="groups-mine" aria-labelledby="mygroups-heading">
           <h2 id="mygroups-heading" className="groups-section">{!embedded ? t('Your chats') : show === 'campfires' ? t('Your Campfires') : show === 'cottage' ? t('Your Cottage Chats') : t('Your chats')}</h2>
-          {orderedGroups.length === 0 && <p className="groups-empty">{show === 'campfires' ? t("You're not at any Campfires yet.") : t("You're not in any chats yet. Start a Cottage Chat, or ask a friend to invite you.")}</p>}
+          {orderedGroups.length === 0 && <p className="groups-empty">{show === 'campfires' ? t("You're not at any Campfires yet. Campfires are small chats inside a village or group.") : t("You're not in any chats yet. Start a Cottage Chat, or ask a friend to invite you.")}</p>}
+          {orderedGroups.length === 0 && show === 'campfires' && (
+            <button type="button" className="btn btn-primary btn-full" style={{ minHeight: '44px' }} onClick={() => navigate('/find-village')}>{t('Find your village')}</button>
+          )}
           {orderedGroups.map(({ g, nested }) => (
-            <button key={g.id} type="button" className={'groups-row' + (selectedId === g.id ? ' hub-row-on' : '')} aria-current={selectedId === g.id ? 'true' : undefined} style={nested ? { marginLeft: '1.25rem', width: 'calc(100% - 1.25rem)' } : undefined} onClick={() => openGroup(g.id)}>
-              <span className="groups-row-name">{nested ? '\u21B3 ' : ''}{g.pinned ? <><Icon name="pushpin" />{' '}</> : ''}{campfires.has(g.id) ? <><Icon name="campfire" />{' '}</> : g.village_kind === 'sidechat' ? <><Icon name="campfire" />{' '}</> : ''}{g.name}{g.steward_id === user.id ? <span className="group-steward-badge">{t('Steward')}</span> : null}</span>
-              <span className="groups-row-meta">{newBoards.has(String(g.id)) && <><b className="groups-new">{t('New posts')}</b>{' \u00b7 '}</>}{g.village_kind === 'sidechat' ? t('Picked by the keeper') + ' \u00b7 ' : ''}{g.quiet ? t('Quiet') + ' \u00b7 ' : ''}{g.memberCount === 1 ? t('1 member') : t('{n} members', { n: g.memberCount })}</span>
+            <button key={g.id} type="button" className={'groups-row' + (selectedId === g.id ? ' hub-row-on' : '')} aria-current={selectedId === g.id ? 'true' : undefined} style={{ ...(nested ? { marginLeft: '1.25rem', width: 'calc(100% - 1.25rem)' } : {}), ...(newBoards.has(String(g.id)) ? { borderLeft: '4px solid var(--danger)' } : {}) }} onClick={() => openGroup(g.id)}>
+              <span className="groups-row-name">{nested ? '\u21B3 ' : ''}{g.pinned ? <><Icon name="pushpin" />{' '}</> : ''}{campfires.has(g.id) ? <><Icon name="campfire" />{' '}</> : g.village_kind === 'sidechat' ? <><Icon name="campfire" />{' '}</> : ''}{g.name}{g.steward_id === user.id ? <span className="group-steward-badge">{t('Steward')}</span> : null}{newBoards.has(String(g.id)) && <span className="hub-tab-count" style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>{t('New posts')}</span>}</span>
+              <span className="groups-row-meta">{g.village_kind === 'sidechat' ? t('Picked by the keeper') + ' \u00b7 ' : ''}{g.quiet ? t('Quiet') + ' \u00b7 ' : ''}{g.memberCount === 1 ? t('1 member') : t('{n} members', { n: g.memberCount })}</span>
             </button>
           ))}
           {archivedGroups.length > 0 && (

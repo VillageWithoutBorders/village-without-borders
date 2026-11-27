@@ -73,10 +73,10 @@ const ALL_STEPS = [
     body: 'Your chats live here. A red number means someone wrote to you.',
   },
   {
-    target: '[data-tour="top-village"]',
+    target: '[data-tour="top-places"]',
     icon: '\u{1F3D8}️',
-    title: 'My Village',
-    body: 'Your village is the neighbors who live near you. Tap here to visit it, or to find yours.',
+    title: 'Places',
+    body: 'Your world, your village and your cottage live here. Tap Places, then pick one at the top.',
   },
   {
     target: '.header-nav',

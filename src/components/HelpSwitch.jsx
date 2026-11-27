@@ -14,7 +14,12 @@ export default function HelpSwitch() {
 
   return (
     <>
-      <Link to="/help-doors" className="hub-back">&#8592; {t('All help')}</Link>
+      {/* Nov 24 (Jade, same frame on every page): "All help" is the round Back arrow at the
+          start of the tab row, like Back beside a title, instead of a row of its own. */}
+      <div className="help-switch-row">
+      <Link to="/help-doors" className="help-switch-back" data-tip={t('Go back to all the ways to get help or give help.')}>
+        <span aria-hidden="true">&#8592;</span><span className="sr-only">{t('All help')}</span>
+      </Link>
       <nav className="help-switch" aria-label={t('Help')}>
         <NavLink to="/skillshare" className={({ isActive }) => 'help-switch-btn' + (isActive ? ' on' : '')}>{t('Offer Help')}</NavLink>
         <NavLink to={waiting ? '/tasks?tab=requests' : '/tasks'} className={({ isActive }) => 'help-switch-btn' + (isActive ? ' on' : '')} aria-label={waiting ? t('Your tasks') + ', ' + t(waiting === 1 ? '1 neighbor offered to help' : '{n} neighbors offered to help', { n: waiting }) : undefined}>
@@ -22,6 +27,7 @@ export default function HelpSwitch() {
         </NavLink>
         <NavLink to="/community/resources" className={({ isActive }) => 'help-switch-btn' + (isActive ? ' on' : '')}>{t('Find resources')}</NavLink>
       </nav>
+      </div>
     </>
   )
 }

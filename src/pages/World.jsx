@@ -474,16 +474,34 @@ export default function World() {
         {resAll === null && <p className="wd-sub" role="status">{t('Loading...')}</p>}
         {resAll !== null && resItems.length === 0 && <p className="wd-sub">{t('No resources with a public address near you yet.')}</p>}
         {resItems.length > 0 && (
-          <ul className="wd-res-list" aria-label={t('On this map')}>
-            {resItems.slice(0, 40).map((r) => (
-              <li key={r.id}>
-                <button type="button" aria-pressed={!!resPicked && resPicked.id === r.id} onClick={() => setResPicked(r)}>
-                  <b>{r.name}</b>
-                  <small>{resourceCats(r).map((c) => t(c)).join(' · ')}{r.miles != null ? ' · ' + t('{n} miles', { n: Math.round(r.miles) }) : ''}</small>
-                </button>
-              </li>
-            ))}
-          </ul>
+          // Nov 24 (Jade): grouped by kind of help, each kind with its own heading.
+          // A place is listed under its first kind. Kinds come in order of the nearest place in each.
+          <div className="wd-res-groups" aria-label={t('On this map')} role="group">
+            {(() => {
+              const groups = []
+              const byCat = {}
+              resItems.slice(0, 40).forEach((r) => {
+                const cat = resourceCats(r)[0] || 'Other'
+                if (!byCat[cat]) { byCat[cat] = []; groups.push(cat) }
+                byCat[cat].push(r)
+              })
+              return groups.map((cat) => (
+                <section key={cat} className="wd-res-group" aria-label={t(cat)}>
+                  <h3 className="wd-res-h">{t(cat)} <span className="wd-res-n">{byCat[cat].length}</span></h3>
+                  <ul className="wd-res-list">
+                    {byCat[cat].map((r) => (
+                      <li key={r.id}>
+                        <button type="button" aria-pressed={!!resPicked && resPicked.id === r.id} onClick={() => setResPicked(r)}>
+                          <b>{r.name}</b>
+                          <small>{r.miles != null ? t('{n} miles', { n: Math.round(r.miles) }) : resourceCats(r).map((c) => t(c)).join(' · ')}</small>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))
+            })()}
+          </div>
         )}
         <div className="wd-actions">
           <button type="button" className="btn btn-primary btn-full" onClick={() => navigate('/community/resources')}>{t('See the full list')}</button>
@@ -504,6 +522,21 @@ export default function World() {
             ? t(myGroups.length ? 'Emergency crews help when disaster hits. Tap your crew to see who is ready and what you bring.' : (orgMap.nodes.length ? 'You are not in a crew yet. Emergency crews help when disaster hits. Tap one to see what it does.' : 'No crews yet. Emergency crews help when disaster hits. You can start one.'))
             : t(myRealOrgs.length ? 'Groups are people working together, not places. A gold line joins two that chose to connect.' : 'You do not belong to a group yet. Tap one to see what it does.')}
       </p>
+
+      {/* Nov 24 (Jade): your villages as a plain list too, not only circles on the globe,
+          for screen readers and for anyone who doesn't read maps easily. */}
+      {net === 'villages' && villages && villages.some((v) => v.is_mine) && (
+        <section className="wd-fires" aria-labelledby="wd-mine-h">
+          <h3 id="wd-mine-h" className="wd-fires-h">{t('Go to a village')}</h3>
+          <div className="wd-fires-list">
+            {villages.filter((v) => v.is_mine).map((v) => (
+              <button key={'mine' + v.id} type="button" className="wd-fire" onClick={() => navigate('/village/' + v.id)}>
+                <Icon name="houses" /> <span>{v.name}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {net === 'villages' && view && view.lines.length > 0 && (
         <section className="wd-fires" aria-labelledby="wd-fires-h">
@@ -554,8 +587,15 @@ export default function World() {
             </>}
             {sheet.kind === 'orglink' && <>
               <h2 id="wd-sheet-title"><span aria-hidden="true"><Icon name="campfire" /></span> {t('{a} and {b}', { a: sheet.a.name, b: sheet.b.name })}</h2>
-              <p>{t('These groups are connected. Their Heads and organizers share a Campfire. Find it under Cottage Chats and Campfires in Messages.')}</p>
-              <button type="button" className="btn btn-primary btn-full" onClick={() => navigate('/messages')}>{t('Open Messages')}</button>
+              {/* Nov 24 (Jade): plain words, no tab names in the sentence, and the button goes
+                  straight to Campfires in Messages. Only Heads and organizers of either group have it. */}
+              {(() => {
+                const lead = myOrgs.some((o) => (o.id === sheet.a.id || o.id === sheet.b.id) && (o.role === 'admin' || o.role === 'organizer'))
+                return lead ? <>
+                  <p>{t('These groups work together. You and the other Heads and organizers share a Campfire to plan together.')}</p>
+                  <button type="button" className="btn btn-primary btn-full" onClick={() => navigate('/messages?tab=campfires')}>{t('Open our Campfire')}</button>
+                </> : <p>{t('These groups work together. Their Heads and organizers plan together in a shared Campfire.')}</p>
+              })()}
             </>}
             <button type="button" className="btn btn-outline btn-full" onClick={closeSheet}>{t('Back to the globe')}</button>
           </div>

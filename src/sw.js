@@ -15,7 +15,19 @@ precacheAndRoute(self.__WB_MANIFEST)
 // Opening VWB with no signal (Nov 3): every page address (/ask, /village/..., a
 // link from a text message) opens the saved app, which then shows that page.
 // Real files (anything with a dot in its last part, like /privacy.pdf) are left alone.
-registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), {
+// Nov 24 (Jade): if the saved copy of the app page is missing (the phone cleared it,
+// or an update was cut off), fetch it from the website instead of showing
+// "This site can't be reached".
+const appPage = createHandlerBoundToURL('index.html')
+registerRoute(new NavigationRoute(async (options) => {
+  try {
+    const res = await appPage(options)
+    if (res) return res
+  } catch (e) {
+    console.error('[sw] saved app page missing, fetching it:', e)
+  }
+  return fetch(options.request)
+}, {
   denylist: [/\/[^/?]+\.[^/]+$/],
 }))
 
@@ -45,12 +57,41 @@ self.addEventListener('fetch', (event) => {
     const hit = await caches.match(req)
     if (hit) return hit
     const res = await fetch(req)
+    // Nov 24 (Jade): a file from an older version is gone from the website, and the
+    // website answers with the app page instead. Never save that page under a file's
+    // name, and say "not found", so the app fetches the new version instead of
+    // showing a page with no colors or layout.
+    const type = res.headers.get('content-type') || ''
+    if (type.includes('text/html')) return new Response('', { status: 404, statusText: 'Not found' })
     if (res.ok && res.type === 'basic') {
       const copy = res.clone()
       event.waitUntil(caches.open(RUNTIME_CACHE).then((c) => c.put(req, copy)).then(trimRuntime).catch(() => {}))
     }
     return res
   })())
+})
+
+// Nov 20 (Jade): the number on the VWB icon. The open app sends the exact count
+// here (AppIconBadge.jsx). Each alert that arrives while VWB is closed adds one.
+// Kept in a tiny cache entry so it survives the service worker going to sleep.
+const BADGE_CACHE = 'vwb-badge'
+async function readBadge() {
+  try {
+    const res = await (await caches.open(BADGE_CACHE)).match('/__badge')
+    return res ? Number(await res.text()) || 0 : 0
+  } catch { return 0 }
+}
+async function writeBadge(n) {
+  try { await (await caches.open(BADGE_CACHE)).put('/__badge', new Response(String(n))) } catch { /* storage full */ }
+}
+async function showBadge(n) {
+  if (!('setAppBadge' in self.navigator)) return
+  try { n > 0 ? await self.navigator.setAppBadge(n) : await self.navigator.clearAppBadge() } catch { /* not allowed here */ }
+}
+self.addEventListener('message', (event) => {
+  if (event.data?.type !== 'vwb-badge') return
+  const n = Math.max(0, Number(event.data.count) || 0)
+  event.waitUntil(writeBadge(n))
 })
 
 self.addEventListener('push', (event) => {
@@ -64,7 +105,8 @@ self.addEventListener('push', (event) => {
   const options = {
     body: data.body || '',
     icon: '/icons/icon-192-v3.png',
-    badge: '/icons/badge-96-v3.png',
+    // Nov 24 (Jade): bolder badge without the ring, so it reads at status-bar size.
+    badge: '/icons/badge-96-v4.png',
     tag: data.tag || 'vwb-notification',
     // Nov 13: a new alert with the same tag replaces the old one. Without renotify it
     // replaces it silently (no sound, no buzz, no pop up), so later alerts went unseen.
@@ -73,9 +115,10 @@ self.addEventListener('push', (event) => {
     data: { url: data.url || '/' },
     vibrate: [200, 100, 200]
   }
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'Village Without Borders', options)
-  )
+  event.waitUntil(Promise.all([
+    self.registration.showNotification(data.title || 'Village Without Borders', options),
+    readBadge().then((n) => writeBadge(n + 1).then(() => showBadge(n + 1))),
+  ]))
 })
 
 self.addEventListener('notificationclick', (event) => {

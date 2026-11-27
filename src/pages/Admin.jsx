@@ -74,6 +74,34 @@ const CONTENT_FILTERS = [
   ['all', 'Everything'],
 ]
 
+// Nov 20 (Jade): how alike two descriptions are, from 0 (nothing shared) to 1 (same words).
+function wordSet(text) {
+  return new Set(String(text || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2))
+}
+function alike(a, b) {
+  const A = wordSet(a), B = wordSet(b)
+  if (A.size === 0 && B.size === 0) return 1
+  if (A.size === 0 || B.size === 0) return 0
+  let shared = 0
+  A.forEach(w => { if (B.has(w)) shared++ })
+  return shared / (A.size + B.size - shared)
+}
+// Ids of posts that share a key (same person and skill) with another post
+// whose description is at least 60% the same words.
+function findRepeats(rows, keyOf) {
+  const groups = {}
+  rows.forEach(r => { const k = keyOf(r); (groups[k] = groups[k] || []).push(r) })
+  const ids = new Set()
+  Object.values(groups).forEach(list => {
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        if (alike(list[i].description, list[j].description) >= 0.6) { ids.add(list[i].id); ids.add(list[j].id) }
+      }
+    }
+  })
+  return ids
+}
+
 export default function Admin() {
   const { user, isAdmin, isFounder } = useAuth()
   const tr = useT()
@@ -214,11 +242,10 @@ export default function Admin() {
   }
 
   // SkillShare content: every request and offer, admin/founder only, so
-  // duplicates or stray posts can be permanently removed. A duplicate here
-  // means the same person posted the same thing more than once (same
-  // requester and skill, or same poster and title) - an exact match on who
-  // and what, not a guess about similar wording, so it only flags real
-  // repeats and never two neighbors asking for the same kind of help.
+  // duplicates or stray posts can be permanently removed. A possible duplicate
+  // is the same person posting the same skill (or offer title) with mostly the
+  // same words (see findRepeats). Two neighbors asking for the same kind of help
+  // are never flagged.
   async function loadContent() {
     const { data: reqs, error: reqErr } = await supabase.from('help_requests').select('id, requester_id, skill_needed, description, urgency, neighborhood, status, created_at, for_name').order('created_at', { ascending: false }).limit(300)
     reportError('loadContent:requests', reqErr)
@@ -231,16 +258,17 @@ export default function Admin() {
     const nameOf = {}
     ;(nameRows || []).forEach(n => { nameOf[n.user_id] = n.display_name })
 
-    const reqKeyCounts = {}
-    ;(reqs || []).forEach(r => {
-      const key = r.requester_id + '|' + (r.skill_needed || '').trim().toLowerCase()
-      reqKeyCounts[key] = (reqKeyCounts[key] || 0) + 1
-    })
-    const offKeyCounts = {}
-    ;(offs || []).forEach(o => {
-      const key = o.user_id + '|' + (o.title || '').trim().toLowerCase()
-      offKeyCounts[key] = (offKeyCounts[key] || 0) + 1
-    })
+    // Nov 20 (Jade): posts a VWB admin marked "Not a duplicate" stay unflagged.
+    // Until vwb-duplicate-dismissals.sql is run this read fails, and nothing is skipped.
+    const { data: dismissRows, error: dismissErr } = await supabase.from('duplicate_dismissals').select('kind, item_id')
+    if (dismissErr) console.error('[Admin] loadContent:dismissals', dismissErr)
+    const dismissed = new Set((dismissRows || []).map(d => d.kind + '-' + d.item_id))
+
+    // Nov 20 (Jade): same person and same skill (or offer title) is not enough.
+    // Two Home Repair jobs can be different tasks. Flag a post only when its
+    // words mostly match another post from the same person with the same skill.
+    const reqDupes = findRepeats(reqs || [], r => r.requester_id + '|' + (r.skill_needed || '').trim().toLowerCase())
+    const offDupes = findRepeats(offs || [], o => o.user_id + '|' + (o.title || '').trim().toLowerCase())
 
     const reqItems = (reqs || []).map(r => ({
       kind: 'request',
@@ -253,7 +281,7 @@ export default function Admin() {
       neighborhood: r.neighborhood,
       status: r.status,
       created_at: r.created_at,
-      is_duplicate: reqKeyCounts[r.requester_id + '|' + (r.skill_needed || '').trim().toLowerCase()] > 1,
+      is_duplicate: !dismissed.has('request-' + r.id) && reqDupes.has(r.id),
     }))
     const offItems = (offs || []).map(o => ({
       kind: 'offer',
@@ -266,10 +294,25 @@ export default function Admin() {
       neighborhood: o.neighborhood,
       status: o.is_available ? 'open' : 'not available',
       created_at: o.created_at,
-      is_duplicate: offKeyCounts[o.user_id + '|' + (o.title || '').trim().toLowerCase()] > 1,
+      is_duplicate: !dismissed.has('offer-' + o.id) && offDupes.has(o.id),
     }))
 
     setContent([...reqItems, ...offItems].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)))
+  }
+
+  // Nov 20 (Jade): "Not a duplicate" clears the flag for every VWB admin.
+  // The post itself is not changed. Undo puts the flag back.
+  async function dismissDuplicate(item) {
+    const { error } = await supabase.rpc('dismiss_duplicate', { p_kind: item.kind, p_item_id: item.id })
+    if (reportError('dismissDuplicate', error, tr('Could not clear this. Try again.'))) return
+    setContent(prev => prev.map(c => (c.kind === item.kind && c.id === item.id) ? { ...c, is_duplicate: false } : c))
+    tell(tr('Marked not a duplicate.'), { action: { label: tr('Undo'), run: () => undismissDuplicate(item) } })
+  }
+
+  async function undismissDuplicate(item) {
+    const { error } = await supabase.rpc('undismiss_duplicate', { p_kind: item.kind, p_item_id: item.id })
+    if (reportError('undismissDuplicate', error, tr('Could not undo. Try again.'))) return
+    setContent(prev => prev.map(c => (c.kind === item.kind && c.id === item.id) ? { ...c, is_duplicate: true } : c))
   }
 
   function askDeleteContent(item) { setDeletingKey(item.kind + '-' + item.id) }
@@ -1778,7 +1821,12 @@ export default function Admin() {
                     </div>
                   </div>
                 ) : (
-                  <button type="button" onClick={() => askDeleteContent(c)} style={{ marginTop: '0.4rem', padding: '0.35rem 0.6rem', borderRadius: '6px', border: '1px solid var(--danger)', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600 }}>{tr('Delete permanently')}</button>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.4rem' }}>
+                    {c.is_duplicate && (
+                      <button type="button" onClick={() => dismissDuplicate(c)} style={{ minHeight: 44, padding: '0.35rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border-strong)', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600 }}>{tr('Not a duplicate')}</button>
+                    )}
+                    <button type="button" onClick={() => askDeleteContent(c)} style={{ minHeight: 44, padding: '0.35rem 0.75rem', borderRadius: '6px', border: '1px solid var(--danger)', background: 'none', color: 'var(--danger)', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600 }}>{tr('Delete permanently')}</button>
+                  </div>
                 )}
               </div>
             )

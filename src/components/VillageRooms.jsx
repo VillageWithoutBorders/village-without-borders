@@ -100,7 +100,7 @@ export default function VillageRooms({ villageId, isMember, isKeeper, onChanged 
           </button>
         : <div key={r.id} className="vs-sister">
             <div className="vs-item"><b><span aria-hidden="true"><Icon name={icon} /></span> {r.name}</b><small>{r.member_count === 1 ? t('1 person') : t('{n} people', { n: r.member_count })}</small></div>
-            <button type="button" className="btn btn-outline btn-full" disabled={busy === r.id || r.i_asked} onClick={() => ask(r)}>
+            <button type="button" className="btn btn-primary btn-full" disabled={busy === r.id || r.i_asked} onClick={() => ask(r)}>
               {r.i_asked ? t('You asked to join') : busy === r.id ? t('Sending...') : t('Ask to join')}
             </button>
           </div>

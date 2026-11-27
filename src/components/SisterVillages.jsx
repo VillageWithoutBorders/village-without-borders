@@ -138,7 +138,7 @@ export default function SisterVillages({ village, villages, sisters, isKeeper, j
                 <option value="">{t('Pick a village')}</option>
                 {canAsk.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
               </select>
-              <button type="button" className="btn btn-outline btn-full" style={{ minHeight: '44px' }} disabled={busy || !askId} onClick={ask}>{t('Ask')}</button>
+              <button type="button" className="btn btn-primary btn-full" style={{ minHeight: '44px' }} disabled={busy || !askId} onClick={ask}>{t('Ask')}</button>
               <p className="cal-sub" style={{ margin: '0.25rem 0 0' }}>{t('Their keeper decides. Either keeper can end it later.')}</p>
             </>
           )}

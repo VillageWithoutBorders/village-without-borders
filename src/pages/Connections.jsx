@@ -78,7 +78,7 @@ export default function Connections({ embedded = false }) {
       </div>
       )}
       <p className="cal-sub">{t('Neighbors you have met in person, messaged, helped, vouched for, or shared a group with.')}</p>
-      <button type="button" className="btn btn-outline btn-full" style={{ minHeight: 44, margin: '0.25rem 0 0.5rem' }} onClick={openMyQr}>{t('Show my QR code to connect')}</button>
+      <button type="button" className="btn btn-primary btn-full" style={{ minHeight: 44, margin: '0.25rem 0 0.5rem' }} onClick={openMyQr}>{t('Show my QR code to connect')}</button>
 
       <label htmlFor="conn-search" style={{ display: 'block', fontWeight: 600, margin: '0.75rem 0 0.25rem' }}>{t('Find someone')}</label>
       <input
@@ -96,7 +96,10 @@ export default function Connections({ embedded = false }) {
       {rows === null && <p className="cal-empty">{t('Loading...')}</p>}
       {failed && <p className="cal-error">{t('We could not load your connections. Check your connection and try again.')}</p>}
       {rows !== null && !failed && rows.length === 0 && (
-        <p className="cal-empty">{t('No connections yet. Show your QR code to a neighbor you meet, or message, help, or vouch for someone, and they will show up here.')}</p>
+        <div className="cal-empty">
+          <p style={{ margin: 0 }}>{t('No connections yet. Show your QR code to a neighbor you meet, or message, help, or vouch for someone, and they will show up here.')}</p>
+          <button type="button" className="btn btn-primary" style={{ minHeight: '44px', marginTop: '0.75rem' }} onClick={openMyQr}>{t('Show my code')}</button>
+        </div>
       )}
       {rows !== null && rows.length > 0 && shown.length === 0 && <p className="cal-empty">{t('No one matches.')}</p>}
 

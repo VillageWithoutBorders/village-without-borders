@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import Lanterns from '../components/Lanterns'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import BackLink from '../components/BackLink'
 import Icon from '../components/Icon'
@@ -19,7 +20,7 @@ function stop(r) {
   switch (r.kind) {
     case 'arrived': return { icon: 'sprout', text: r.label }
     case 'village': return { icon: 'houses', text: t('You joined {name}', { name: r.label }) }
-    case 'org': return { icon: 'people', text: t('You joined {name}', { name: r.label }) }
+    case 'org': return { icon: 'people', text: t('You joined the group {name}', { name: r.label }) }
     case 'group': return { icon: 'tent', text: t('You joined the emergency crew {name}', { name: r.label }) }
     case 'role': return { icon: 'key', text: ROLE_WORD[r.extra] ? t('You became {role} of {name}', { role: t(ROLE_WORD[r.extra]), name: r.label }) : t('You became a leader of {name}', { name: r.label }) }
     case 'met_first': return { icon: 'handshake', text: r.label }
@@ -36,6 +37,7 @@ export default function Trail() {
   const [rows, setRows] = useState(null)
   const [totals, setTotals] = useState(null)
   const [error, setError] = useState('')
+  const navigate = useNavigate()
   useT()
 
   useEffect(() => {
@@ -53,13 +55,23 @@ export default function Trail() {
     return () => { alive = false }
   }, [])
 
-  const facts = totals ? [
-    { n: totals.villages, one: 'village', many: 'villages' },
-    { n: totals.places, one: 'group or crew', many: 'groups and crews' },
-    { n: totals.met, one: 'neighbor met in person', many: 'neighbors met in person' },
-    { n: totals.tasks, one: 'task finished together', many: 'tasks finished together' },
-    { n: totals.vouches, one: 'vouch for you', many: 'vouches for you' },
-  ] : []
+  // Nov 22 (Jade): totals at zero are hidden, and each total opens its list.
+  const facts = (totals ? [
+    { n: totals.villages, one: 'village', many: 'villages', to: '/world' },
+    { n: totals.places, one: 'group or crew', many: 'groups and crews', to: '/groups' },
+    { n: totals.met, one: 'neighbor met in person', many: 'neighbors met in person', to: '/connections' },
+    { n: totals.tasks, one: 'task finished together', many: 'tasks finished together', to: '/tasks?tab=archived' },
+    { n: totals.vouches, one: 'vouch for you', many: 'vouches for you', to: '/profile#vouches' },
+  ] : []).filter((f) => Number(f.n) > 0)
+
+  // Nov 22 (Jade): "Where to next?" points to the next step this person has not taken yet.
+  const next = !totals || !Number(totals.met)
+    ? { text: 'Meet a neighbor and share your QR code.', go: openMyQr }
+    : !Number(totals.tasks)
+      ? { text: 'Finish a task with a neighbor. See who needs a hand.', go: () => navigate('/skillshare') }
+      : !Number(totals.vouches)
+        ? { text: 'Ask a neighbor who knows you to vouch for you.', go: () => navigate('/profile#vouches') }
+        : { text: 'Offer help to a neighbor nearby.', go: () => navigate('/post-offer') }
 
   return (
     <div className="cal-page tr-page">
@@ -67,16 +79,16 @@ export default function Trail() {
       <h1 className="tr-title">{t('My story')}</h1>
       <p className="cal-sub">{t('The path you have walked in Village Without Borders. Only you can see this.')}</p>
 
-      {totals && (
+      {facts.length > 0 && (
         <ul className="tr-facts" aria-label={t('Your totals')}>
           {facts.map((f) => (
-            <li key={f.one}><b>{f.n}</b> <span>{t(f.n === 1 ? f.one : f.many)}</span></li>
+            <li key={f.one}><Link to={f.to}><b>{f.n}</b> <span>{t(Number(f.n) === 1 ? f.one : f.many)}</span></Link></li>
           ))}
         </ul>
       )}
 
       {error && <p className="form-error" role="alert">{error}</p>}
-      {rows === null && <p className="cal-empty">{t('Loading...')}</p>}
+      {rows === null && <div className="page-loading"><Lanterns count={3} mode="loop" /><p className="cal-empty" role="status">{t('Loading...')}</p></div>}
 
       {rows && rows.length > 0 && (
         <ol className="tr-path">
@@ -87,15 +99,15 @@ export default function Trail() {
               <span className="tr-text"><b>{s.text}</b><small>{day(r.at)}</small></span>
             </>
             return (
-              <li key={i} className="tr-stop">
+              <li key={i} className="tr-stop" style={{ '--i': i }}>
                 {r.link ? <Link to={r.link} className="tr-link">{inner}</Link> : <div className="tr-link">{inner}</div>}
               </li>
             )
           })}
           <li className="tr-stop tr-next">
-            <button type="button" className="tr-link" onClick={openMyQr}>
+            <button type="button" className="tr-link" onClick={next.go}>
               <span className="tr-dot" aria-hidden="true"><Icon name="compass" size={26} /></span>
-              <span className="tr-text"><b>{t('Where to next?')}</b><small>{t('Meet a neighbor and share your QR code.')}</small></span>
+              <span className="tr-text"><b>{t('Where to next?')}</b><small>{t(next.text)}</small></span>
             </button>
           </li>
         </ol>

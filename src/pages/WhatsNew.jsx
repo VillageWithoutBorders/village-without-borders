@@ -191,7 +191,7 @@ export default function WhatsNew() {
       </div>
 
       {!form && note && <p className="cal-sub" role="status" style={{ fontWeight: 600 }}>{note}</p>}
-      {error && <p className="form-error" role="alert">{error} <button type="button" className="btn btn-outline" onClick={load}>{t('Try again')}</button></p>}
+      {error && <p className="form-error" role="alert">{error} <button type="button" className="btn btn-primary" onClick={load}>{t('Try again')}</button></p>}
       {loading && <p className="cal-sub">{t('Loading...')}</p>}
       {!loading && !error && shown.length === 0 && (
         <p className="cal-empty">{tab === 'new' ? t('No news yet.') : t('Nothing on the way right now.')}</p>

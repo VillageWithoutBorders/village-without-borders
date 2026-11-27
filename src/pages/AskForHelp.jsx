@@ -329,7 +329,7 @@ export default function AskForHelp() {
                 <button type="button" className="today-slim today-slim-wrap ask-find-res" onClick={() => { setCheckedResources(false); window.scrollTo(0, 0) }}
                     data-tip={t('Food, bills, rides, hotlines, and more near you, without waiting for a neighbor.')}>
                     <Icon name="heart-hands" size={28} />
-                    <span className="today-slim-text"><b>{t('Or find a resource yourself')}</b><small>{t('Food, bills, rides, hotlines, and more near you')}</small></span>
+                    <span className="today-slim-text"><b>{t('Find a resource yourself')}</b><small>{t('Food, bills, rides, hotlines, and more near you')}</small></span>
                     <span className="today-slim-go" aria-hidden="true">&#8250;</span>
                 </button>
             )}
@@ -351,6 +351,7 @@ export default function AskForHelp() {
                         <label className={'urgency-option' + (forWho === 'me' ? ' active' : '')}>
                             <input type="radio" name="forWho" className="sr-only" checked={forWho === 'me'} onChange={() => { setForWho('me'); setError('') }} />
                             <span className="urgency-label">{t('Me')}</span>
+                            <span className="urgency-desc">{t('I need the help myself')}</span>
                         </label>
                         <label className={'urgency-option' + (forWho === 'other' ? ' active' : '')}>
                             <input type="radio" name="forWho" className="sr-only" checked={forWho === 'other'} onChange={() => { setForWho('other'); setError('') }} />

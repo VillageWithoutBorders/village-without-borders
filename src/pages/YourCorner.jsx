@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../supabaseClient'
 import AppMenu from '../components/AppMenu'
@@ -41,6 +41,21 @@ export default function YourCorner() {
   const rolesBtn = useRef(null)
   const [scanOpen, setScanOpen] = useState(false)
   const scanBtn = useRef(null)
+  // Nov 24 (Jade): the app icon's press-and-hold menu has "QR code". It opens /me?qr=1,
+  // which shows two choices: Show my code, or Scan a code (/me?scan=1 opens the scanner
+  // itself). The ?qr=1 is taken off the address first, so going back or reloading
+  // does not open it again.
+  const [qrChoice, setQrChoice] = useState(false)
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    const scan = q.get('scan') === '1'
+    const qr = q.get('qr') === '1'
+    if (!scan && !qr) return
+    q.delete('scan'); q.delete('qr')
+    const rest = q.toString()
+    window.history.replaceState(window.history.state, '', window.location.pathname + (rest ? '?' + rest : '') + window.location.hash)
+    if (scan) setScanOpen(true); else setQrChoice(true)
+  }, [])
   // Your avatar from the avatar builder, or the same drawn avatar others see. The letter shows only if it can't load.
   const avatarSrc = drawAvatar(profile?.avatar_url, user?.id)
   const name = profile?.display_name || t('Neighbor')
@@ -91,46 +106,46 @@ export default function YourCorner() {
     : t('None open now')
   const emCheck = toCheck > 0 ? (toCheck === 1 ? t('1 waiting for a check') : t('{n} waiting for a check', { n: toCheck })) : ''
 
-  // Your things (Nov 10): one row. On a computer it sits on the right, under the room.
+  // Your roles as one row that opens the list (Nov 22, Jade: phones too, so the page stays short).
+  const rolesRow = (extraClass) => (
+    <button type="button" className={'corner-item corner-item-btn ' + extraClass} data-tour="top-tools" aria-haspopup="dialog" onClick={(e) => { rolesBtn.current = e.currentTarget; setRolesOpen(true) }}>
+      <span aria-hidden="true"><Icon name="toolbox" /></span>
+      {adminWaiting > 0
+        ? <span className="corner-item-text">{t('Your roles')}<small>{t('{n} waiting in the Admin inbox', { n: adminWaiting })}</small></span>
+        : <span className="corner-item-text">{t('Your roles')}</span>}
+      {/* Nov 22 (Jade): the same count as the dot on the My Corner tab, so it is clear where it comes from. */}
+      {adminWaiting > 0 && <span className="corner-count" aria-hidden="true">{adminWaiting > 9 ? '9+' : adminWaiting}</span>}
+      <span className="corner-arrow" aria-hidden="true">›</span>
+    </button>
+  )
+
+  // Your things (Nov 10). On a computer it sits on the right, under the room.
+  // Nov 22 (Jade): Your roles joins My story here (phones and computers).
   const thingsList = (hid) => (
     <section className="corner-group" aria-labelledby={hid}>
       <h2 id={hid} className="corner-group-h">{t('Your things')}</h2>
       <nav aria-labelledby={hid} className="corner-list">
+        {tools.length > 0 && rolesRow('corner-roles-in-list')}
+        {/* Nov 24 (Jade): Simple view has no top-bar Cottage button, so the cottage is here:
+            the garden, its name, and who can visit. */}
+        {simple && (
+          <Link to="/cottage" className="corner-item">
+            <span aria-hidden="true"><Icon name="cottage" /></span>
+            <span className="corner-item-text">{t('My Cottage')}<small>{t('Your garden, and who can visit')}</small></span>
+            <span className="corner-arrow" aria-hidden="true">›</span>
+          </Link>
+        )}
         <Link to="/trail" className="corner-item">
-          <span aria-hidden="true"><Icon name="compass" /></span>
-          <span className="corner-item-text">{t('My story')}<small>{t('Your story here, step by step')}</small></span>
+          <span aria-hidden="true"><Icon name="scroll" /></span>
+          <span className="corner-item-text">{t('My story')}<small>{t('The path you have walked so far')}</small></span>
           <span className="corner-arrow" aria-hidden="true">›</span>
         </Link>
       </nav>
     </section>
   )
 
-  // Your roles. Phones: the tools, right on the page. Computers: one row that opens them
-  // on the right side, so the page still fits one screen.
-  const roles = tools.length > 0 && (split ? (
-    <button type="button" className="corner-item corner-item-btn corner-roles-row" data-tour="top-tools" aria-haspopup="dialog" onClick={(e) => { rolesBtn.current = e.currentTarget; setRolesOpen(true) }}>
-      <span aria-hidden="true"><Icon name="toolbox" /></span>
-      {adminWaiting > 0
-        ? <span className="corner-item-text">{t('Your roles')}<small>{t('{n} waiting in the Admin inbox', { n: adminWaiting })}</small></span>
-        : t('Your roles')}
-      <span className="corner-arrow" aria-hidden="true">›</span>
-    </button>
-  ) : (
-    <section className="corner-group" aria-labelledby="corner-roles-h" data-tour="top-tools">
-      <h2 id="corner-roles-h" className="corner-group-h">{t('Your roles')}</h2>
-      <nav aria-labelledby="corner-roles-h" className="corner-list">
-        {roleRows.map((r) => (
-          <Link key={r.key} to={r.to} className="corner-item">
-            <span aria-hidden="true"><Icon name={r.icon} /></span>
-            {r.name || r.note
-              ? <span className="corner-item-text">{t(r.label)}{r.name && <small>{r.name}</small>}{r.note && <small>{t(r.note, r.noteVars)}</small>}</span>
-              : t(r.label)}
-            <span className="corner-arrow" aria-hidden="true">›</span>
-          </Link>
-        ))}
-      </nav>
-    </section>
-  ))
+  // Your roles sits inside Your things everywhere (Nov 24, Jade: computers match phones).
+  const roles = null
 
   const page = (
     <div className={'corner-page' + (split ? ' corner-page-full' : '')}>
@@ -206,6 +221,9 @@ export default function YourCorner() {
       <ToolsSheet id="corner-roles-title" title={t('Your roles')} rows={roleRows}
         onClose={(refocus) => { setRolesOpen(false); if (refocus && rolesBtn.current && rolesBtn.current.focus) rolesBtn.current.focus() }} />
     )}
+    {qrChoice && <QrChoice onClose={() => setQrChoice(false)}
+      onShow={() => { setQrChoice(false); openMyQr() }}
+      onScan={() => { setQrChoice(false); setScanOpen(true) }} />}
     {scanOpen && <ScanHelp onClose={() => { setScanOpen(false); if (scanBtn.current && scanBtn.current.focus) scanBtn.current.focus() }} />}
   </>
 
@@ -232,9 +250,8 @@ export default function YourCorner() {
   )
 }
 
-// Scan a code (Nov 10, Jade). There is no scanner inside the app: a phone's own camera
-// reads a neighbor's code and offers the link. This says so in three steps.
-function ScanHelp({ onClose }) {
+// QR code (Nov 24, Jade): from the app icon's press-and-hold menu. Two big choices.
+function QrChoice({ onClose, onShow, onScan }) {
   const t = useT()
   const headRef = useRef(null)
   const closeRef = useRef(onClose)
@@ -245,8 +262,143 @@ function ScanHelp({ onClose }) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
+  useBackCloses(closeRef)
+  return (
+    <div className="tools-shade qr-shade" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="tools-sheet qr-sheet" role="dialog" aria-modal="true" aria-labelledby="qr-choice-h">
+        <div className="qr-sheet-top">
+          <h2 id="qr-choice-h" tabIndex={-1} ref={headRef}>{t('QR code')}</h2>
+          <button type="button" className="btn btn-outline qr-sheet-close" onClick={onClose}>{t('Close')}</button>
+        </div>
+        <div className="qr-choice">
+          <button type="button" className="btn btn-primary btn-full qr-choice-btn" onClick={onShow}>
+            <span aria-hidden="true"><Icon name="qr-code" /></span> {t('Show my code to connect')}
+          </button>
+          <button type="button" className="btn btn-primary btn-full qr-choice-btn" onClick={onScan}>
+            <span aria-hidden="true"><Icon name="phone" /></span> {t('Scan a code')}
+          </button>
+        </div>
+        <p className="mycode-lead">{t('Only connect with someone you have met.')}</p>
+      </div>
+    </div>
+  )
+}
+
+// Scan a code (Nov 10, Jade; Nov 24: opens the camera right here).
+// The camera opens inside the pop-up and a neighbor's code connects you right away.
+// Nothing is saved or sent: the picture stays on the phone, and only a VWB connect code
+// is ever followed. Android Chrome reads codes by itself (BarcodeDetector). Everywhere else
+// (iPhone, Firefox, computers) the small jsQR reader loads, only when Scan a code opens.
+// With no camera at all, the three steps stay.
+const canScan = typeof window !== 'undefined'
+  && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+
+// Reads a QR code from the video. Returns a function: video -> list of found texts.
+async function makeReader() {
+  if ('BarcodeDetector' in window) {
+    try {
+      const d = new window.BarcodeDetector({ formats: ['qr_code'] })
+      return async (v) => (await d.detect(v)).map((f) => f.rawValue)
+    } catch (err) { console.error('Built-in code reader could not start:', err) }
+  }
+  const jsQR = (await import('jsqr')).default
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  return async (v) => {
+    // A smaller copy reads faster on slow phones and is still sharp enough for a code.
+    const scale = Math.min(1, 640 / Math.max(v.videoWidth, v.videoHeight))
+    const w = Math.round(v.videoWidth * scale)
+    const h = Math.round(v.videoHeight * scale)
+    if (!w || !h) return []
+    canvas.width = w; canvas.height = h
+    ctx.drawImage(v, 0, 0, w, h)
+    const found = jsQR(ctx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: 'dontInvert' })
+    return found && found.data ? [found.data] : []
+  }
+}
+
+// Only our own connect links: /connect/<code> on this app. Anything else is ignored.
+function connectCode(raw) {
+  try {
+    const u = new URL(String(raw).trim())
+    const ours = u.origin === window.location.origin || u.hostname === 'app.villagewithoutborders.org'
+    const m = u.pathname.match(/^\/connect\/([A-Za-z0-9_-]{4,80})\/?$/)
+    return ours && m ? m[1] : null
+  } catch { return null }
+}
+
+function ScanHelp({ onClose }) {
+  const t = useT()
+  const navigate = useNavigate()
+  const headRef = useRef(null)
+  const videoRef = useRef(null)
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
+  // 'steps' (no scanner), 'starting', 'looking', 'blocked' (camera not allowed), 'nocam', 'notours'
+  const [state, setState] = useState(canScan ? 'starting' : 'steps')
+  useEffect(() => {
+    if (headRef.current) headRef.current.focus()
+    function onKey(e) { if (e.key === 'Escape') closeRef.current() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
   // The phone's Back button closes the pop-up.
   useBackCloses(closeRef)
+
+  useEffect(() => {
+    if (!canScan) return undefined
+    let stream = null
+    let timer = 0
+    let stopped = false
+    let read = null
+    function stop() {
+      stopped = true
+      clearTimeout(timer)
+      if (stream) stream.getTracks().forEach((tr) => tr.stop())
+    }
+    async function look() {
+      if (stopped) return
+      const v = videoRef.current
+      if (v && v.readyState >= 2 && read) {
+        try {
+          const found = await read(v)
+          for (const raw of found) {
+            const code = connectCode(raw)
+            if (code) { stop(); closeRef.current(); navigate('/connect/' + code); return }
+            if (raw) setState('notours')
+          }
+        } catch (err) { console.error('Code reader failed:', err) }
+      }
+      timer = setTimeout(look, 250)
+    }
+    makeReader()
+      .then((r) => {
+        read = r
+        return navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+          .catch((err) => {
+            console.error('Camera did not open:', err)
+            if (!stopped) setState(err && (err.name === 'NotAllowedError' || err.name === 'SecurityError') ? 'blocked' : 'nocam')
+            return null
+          })
+      })
+      .then((s) => {
+        if (!s) return
+        if (stopped) { s.getTracks().forEach((tr) => tr.stop()); return }
+        stream = s
+        const v = videoRef.current
+        if (v) { v.srcObject = s; v.play().catch(() => {}) }
+        setState('looking')
+        look()
+      })
+      .catch((err) => {
+        // The code reader did not load (often no signal). The three steps still work.
+        console.error('Code reader did not load:', err)
+        if (!stopped) setState('nocam')
+      })
+    return stop
+  }, [navigate])
+
+  const camera = state === 'starting' || state === 'looking' || state === 'notours'
   return (
     <div className="tools-shade qr-shade" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="tools-sheet qr-sheet" role="dialog" aria-modal="true" aria-labelledby="scan-help-h">
@@ -254,11 +406,33 @@ function ScanHelp({ onClose }) {
           <h2 id="scan-help-h" tabIndex={-1} ref={headRef}>{t('Scan a code')}</h2>
           <button type="button" className="btn btn-outline qr-sheet-close" onClick={onClose}>{t('Close')}</button>
         </div>
-        <ol className="scan-steps">
-          <li>{t('Open the camera on your phone.')}</li>
-          <li>{t("Point it at your neighbor's code.")}</li>
-          <li>{t('Tap the link that shows. It opens here and connects you.')}</li>
-        </ol>
+        {camera && (
+          <>
+            <div className="scan-cam">
+              <video ref={videoRef} muted playsInline aria-label={t("Camera. Point it at your neighbor's code.")} />
+              <span className="scan-frame" aria-hidden="true" />
+            </div>
+            <p className="mycode-lead" role="status">
+              {state === 'starting' ? t('Opening the camera...')
+                : state === 'notours' ? t('That is not a VWB code. Point the camera at the code on your neighbor\'s phone.')
+                : t("Point the camera at your neighbor's code. It connects you by itself.")}
+            </p>
+          </>
+        )}
+        {(state === 'blocked' || state === 'nocam') && (
+          <p className="form-error" role="alert">
+            {state === 'blocked'
+              ? t('The camera is turned off for VWB. You can turn it on in your browser settings, or use the steps below.')
+              : t('We could not open the camera. Use the steps below instead.')}
+          </p>
+        )}
+        {!camera && (
+          <ol className="scan-steps">
+            <li>{t('Open the camera on your phone.')}</li>
+            <li>{t("Point it at your neighbor's code.")}</li>
+            <li>{t('Tap the link that shows. It opens here and connects you.')}</li>
+          </ol>
+        )}
         <p className="mycode-lead">{t('Only scan the code of someone you have met.')}</p>
       </div>
     </div>

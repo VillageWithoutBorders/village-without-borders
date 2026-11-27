@@ -72,10 +72,16 @@ export default function AppMenu({ inline = false, only = null }) {
     navigate(path, state ? { state } : undefined)
   }
 
-  async function handleInstall() {
+  // Nov 24 (Jade): always opens the short guide. It has the Install button when the
+  // browser offers one, steps for this kind of phone or computer, the browser-logo
+  // shortcut fix, and the press-and-hold menu.
+  function handleInstall() {
     setOpen(false)
-    if (canInstall) { await promptInstall(); return }
     setPanel('install')
+  }
+  async function installNow() {
+    const outcome = await promptInstall()
+    if (outcome === 'accepted') closePanel()
   }
 
   async function handleNativeShare() {
@@ -199,13 +205,42 @@ export default function AppMenu({ inline = false, only = null }) {
           {panel === 'install' && (
             <div role="dialog" aria-modal="true" aria-labelledby="installTitle" className="app-dialog">
               <h2 id="installTitle" className="app-dialog-title">{t('Put the app on your home screen')}</h2>
-              {isIOS ? (
-                <p className="app-dialog-text">{t('In Safari, tap the Share button (the square with an arrow pointing up) at the bottom of the screen. Then tap "Add to Home Screen."')}</p>
-              ) : (
-                <p className="app-dialog-text">{t('Open your browser\'s menu (the three dots or three lines). Then tap "Install app" or "Add to Home Screen."')}</p>
-              )}
+              {(() => {
+                const android = /Android/i.test(navigator.userAgent)
+                const computer = !isIOS && !android && !!(window.matchMedia && window.matchMedia('(pointer: fine)').matches)
+                return <>
+                  {canInstall && (
+                    <button type="button" className="btn btn-primary btn-full install-now" onClick={installNow} autoFocus>
+                      <span aria-hidden="true"><Icon name="phone-add" /></span> {t('Install the app')}
+                    </button>
+                  )}
+                  {canInstall && <p className="app-dialog-text install-or">{t('Or do it yourself:')}</p>}
+                  <ol className="install-steps">
+                    {isIOS ? <>
+                      <li>{t('Open this page in Safari.')}</li>
+                      <li>{t('Tap the Share button. It is a square with an arrow pointing up.')}</li>
+                      <li>{t('Tap "Add to Home Screen," then tap "Add."')}</li>
+                    </> : computer ? <>
+                      <li>{t('Look at the right end of the address bar for the install button. It looks like a screen with an arrow.')}</li>
+                      <li>{t('Or open the browser menu and choose "Install."')}</li>
+                    </> : <>
+                      <li>{t('Tap the menu. It is the three dots at the top right.')}</li>
+                      <li>{t('Tap "Install app." If you only see "Add to Home screen," tap that and pick "Install."')}</li>
+                      <li>{t('Tap "Install" one more time.')}</li>
+                    </>}
+                  </ol>
+                  {!isIOS && !computer && (
+                    <p className="install-note">{t('Is there a little browser logo on your VWB icon? That icon is only a shortcut. Press and hold it, remove it, then follow the steps above.')}</p>
+                  )}
+                  {!isIOS && (
+                    <p className="install-tip">{computer
+                      ? t('Once it is installed, right-click the VWB icon for quick choices: Find help, Ask for help, QR code, and My village.')
+                      : t('Once it is installed, press and hold the VWB icon for quick choices: Find help, Ask for help, QR code, and My village.')}</p>
+                  )}
+                </>
+              })()}
               <div className="app-dialog-buttons">
-                <button type="button" className="btn btn-primary btn-full" onClick={closePanel} autoFocus>{t('Got it')}</button>
+                <button type="button" className={'btn btn-full ' + (canInstall ? 'btn-outline' : 'btn-primary')} onClick={closePanel} autoFocus={!canInstall}>{t('Got it')}</button>
               </div>
             </div>
           )}

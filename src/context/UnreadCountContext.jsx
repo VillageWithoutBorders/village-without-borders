@@ -2,12 +2,15 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { supabase } from '../supabaseClient'
 import { useAuth } from './AuthContext'
 
-const UnreadCountContext = createContext({ unreadCount: 0, refreshUnread: () => {}, newBoards: new Set() })
+const UnreadCountContext = createContext({ unreadCount: 0, chatUnread: 0, refreshUnread: () => {}, newBoards: new Set() })
 const NO_BOARDS = new Set()
 
 export function UnreadCountProvider({ children }) {
   const { user } = useAuth()
   const [count, setCount] = useState(0)
+  // Nov 20 (Jade): private chats only, for the People and Chats buttons.
+  // The bottom Messages tab still shows everything (chats plus new posts).
+  const [chatCount, setChatCount] = useState(0)
   // Nov 10 (Jade): Cottage Chats and Campfires with a new post you have not read yet.
   // The database keeps one unread 'group_post' alert per board, so each board counts once.
   const [newBoards, setNewBoards] = useState(NO_BOARDS)
@@ -42,9 +45,15 @@ export function UnreadCountProvider({ children }) {
     if (postsErr) console.error('[UnreadCount] new board posts', postsErr)
     const rows = postsErr ? [] : posts || []
     const boards = new Set(rows.filter((p) => p.type === 'group_post').map((p) => String(p.link || '').replace(/^\/groups\//, '')).filter(Boolean))
-    // The Village Square summary counts once, however many there are.
-    const square = rows.some((p) => p.type === 'campfire') ? 1 : 0
+    // Nov 19 (Jade): village chats with new posts count too, one per chat, so the
+    // bottom Messages tab shows the same new posts as Places > Village Square.
+    // If that check fails, fall back to counting the Village Square summary once.
+    const { data: vu, error: vuErr } = await supabase.rpc('campfire_unread')
+    if (vuErr) console.error('[UnreadCount] village chats', vuErr)
+    const villageChats = vuErr ? 0 : (vu || []).filter((r) => Number(r.unread || 0) > 0).length
+    const square = villageChats || (rows.some((p) => p.type === 'campfire') ? 1 : 0)
     setNewBoards(boards)
+    setChatCount(chats)
     setCount(chats + boards.size + square)
   }, [user?.id])
 
@@ -58,7 +67,7 @@ export function UnreadCountProvider({ children }) {
   }, [refresh])
 
   return (
-    <UnreadCountContext.Provider value={{ unreadCount: count, refreshUnread: refresh, newBoards }}>
+    <UnreadCountContext.Provider value={{ unreadCount: count, chatUnread: chatCount, refreshUnread: refresh, newBoards }}>
       {children}
     </UnreadCountContext.Provider>
   )
