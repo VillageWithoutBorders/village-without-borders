@@ -10,6 +10,9 @@ Thank you for wanting to help. Every village is built by many hands.
 
 ## Before you write code
 
+Read the [guides for people who work on VWB](docs/README.md). Start with
+[Getting started](docs/getting-started.md) and [Privacy and security](docs/privacy-and-security.md).
+
 - Open an issue first for anything bigger than a small fix, so we can talk it through together.
 - Keep it plain and kind. The app is for people of all reading levels, ages, and abilities.
 - Privacy comes first. Never show someone's address, and keep locations rounded.
@@ -18,7 +21,9 @@ Thank you for wanting to help. Every village is built by many hands.
 ## Sending your changes
 
 1. Copy (fork) the repository and make a new branch.
-2. Make your change and test it with `npm run dev`.
+2. Make your change and test it with `npm run dev`. Run `npm run lint` too.
+   Check it against the [screen checklist](docs/ui-checklist.md).
+   If it needs a database change, see [The database](docs/database.md).
 3. Sign off on each commit with `git commit -s`. This adds a line like:
 
    `Signed-off-by: Your Name <you@example.com>`
