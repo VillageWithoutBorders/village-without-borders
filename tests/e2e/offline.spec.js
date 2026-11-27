@@ -92,5 +92,15 @@ test('the app can be put on a home screen: its install card is complete', async 
     expect(img.headers()['content-type']).toContain('image/')
   }
   // Each long-press shortcut opens a real page.
-  expect(manifest.shortcuts.map((s) => s.url)).toEqual(['/community/resources', '/ask', '/my-code', '/village'])
+  expect(manifest.shortcuts.map((s) => s.url)).toEqual(['/community/resources', '/ask', '/me?qr=1', '/village'])
+})
+
+test('the QR code shortcut opens My Corner with the two QR choices', async ({ page, signIn }) => {
+  await signIn()
+  await page.goto('/me?qr=1')
+  const choices = page.getByRole('dialog', { name: 'QR code' })
+  await expect(choices.getByRole('button', { name: 'Show my code to connect' })).toBeVisible()
+  await expect(choices.getByRole('button', { name: 'Scan a code' })).toBeVisible()
+  // The ?qr=1 is taken off the address, so going back or reloading does not open it again.
+  await expect(page).toHaveURL(/\/me$/)
 })

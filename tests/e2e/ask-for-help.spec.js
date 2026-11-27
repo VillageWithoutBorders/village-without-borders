@@ -17,7 +17,7 @@ async function openForm(page, village, signIn, over) {
 }
 
 async function fillAsk(page, words = 'My car broke down and I need a ride to the clinic on Friday.') {
-  await page.getByRole('radio', { name: 'Me', exact: true }).check({ force: true })
+  await page.getByRole('radio', { name: /^Me\b/ }).check({ force: true })
   await page.getByRole('button', { name: /Everyday Help/ }).click()
   await page.getByRole('button', { name: 'Rides and Transportation' }).click()
   await page.getByLabel("What's going on?").fill(words)
@@ -64,7 +64,7 @@ test('the request carries the middle of the zip area, never an exact spot or an 
 
 test('nothing is posted until a kind of help and a few words are given', async ({ page, village, signIn }) => {
   await openForm(page, village, signIn)
-  await page.getByRole('radio', { name: 'Me', exact: true }).check({ force: true })
+  await page.getByRole('radio', { name: /^Me\b/ }).check({ force: true })
   await page.getByLabel("What's going on?").fill('I need a hand.')
   await page.getByRole('button', { name: 'Post request' }).click()
   await expect(page.getByRole('alert')).toContainText('Please choose what kind of help you need.')

@@ -46,10 +46,12 @@ test('the other safety headers are set', () => {
   expect(headers['X-Frame-Options']).toBe('DENY')
   expect(headers['Referrer-Policy']).toBe('strict-origin-when-cross-origin')
   expect(headers['Strict-Transport-Security']).toMatch(/max-age=\d{8,}/)
-  // VWB never asks a phone where it is, or for its camera or microphone.
-  for (const feature of ['geolocation', 'camera', 'microphone', 'payment']) {
+  // VWB never asks a phone where it is, or for its microphone.
+  for (const feature of ['geolocation', 'microphone', 'payment']) {
     expect(headers['Permissions-Policy']).toContain(feature + '=()')
   }
+  // The camera is for Scan a code only, and only the app itself may use it.
+  expect(headers['Permissions-Policy']).toContain('camera=(self)')
 })
 
 test('the test site really sends these headers', async ({ request }) => {

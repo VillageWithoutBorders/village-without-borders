@@ -42,6 +42,7 @@ To see which lines the unit tests reach: `npm run test:coverage`, then open
 | `calendar-and-events.spec.js` | Looks at the public calendar, opens an event, signs up. |
 | `emergency.spec.js` | Reports an emergency, with and without signal. |
 | `alerts.spec.js` | Reads their alerts. |
+| `home.spec.js` | Opens Home when their tasks cannot load, and is told so. |
 | `offline.spec.js` | Opens the app with no signal. Checks the install card. |
 | `security-headers.spec.js` | Checks the safety headers in `public/_headers`. |
 

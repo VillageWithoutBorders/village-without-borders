@@ -5,8 +5,9 @@ import { waitFor } from '@testing-library/react'
 import { db } from '../helpers/fakeSupabase.js'
 import { applyPrefs, devicePrefs, savePrefs } from '../../src/utils/uiPrefs'
 import { getLang, setLangLocal } from '../../src/utils/lang'
+import { setPlainChoice } from '../../src/utils/plainWords'
 
-const DEFAULTS = { text: 'normal', theme: 'auto', motion: 'normal', lang: 'en', width: 'calm', read: 'off' }
+const DEFAULTS = { text: 'normal', theme: 'auto', motion: 'normal', lang: 'en', width: 'calm', read: 'off', plain: 'auto' }
 
 function listenForPrefs() {
   const heard = vi.fn()
@@ -14,9 +15,11 @@ function listenForPrefs() {
   return { heard, stop: () => window.removeEventListener('vwb:prefs', heard) }
 }
 
-// lang.js remembers the language in the module, so go back to English after each test.
+// lang.js and plainWords.js remember their choice in the module, so go back to
+// English and to automatic Plain words after each test.
 afterEach(async () => {
   await setLangLocal('en')
+  setPlainChoice('auto')
 })
 
 describe('devicePrefs', () => {
@@ -27,9 +30,10 @@ describe('devicePrefs', () => {
 
 describe('applyPrefs (the account wins)', () => {
   it('puts every choice from the account on this phone', async () => {
-    applyPrefs({ text: 'larger', theme: 'dark', motion: 'calm', lang: 'es', width: 'full', read: 'on' })
+    applyPrefs({ text: 'larger', theme: 'dark', motion: 'calm', lang: 'es', width: 'full', read: 'on', plain: 'on' })
     await waitFor(() => expect(getLang()).toBe('es'))
-    expect(devicePrefs()).toEqual({ text: 'larger', theme: 'dark', motion: 'calm', lang: 'es', width: 'full', read: 'on' })
+    expect(devicePrefs()).toEqual({ text: 'larger', theme: 'dark', motion: 'calm', lang: 'es', width: 'full', read: 'on', plain: 'on' })
+    expect(localStorage.getItem('vwb_plain')).toBe('on')
     const root = document.documentElement
     expect(root.classList.contains('text-larger')).toBe(true)
     expect(root.dataset.theme).toBe('dark')
@@ -44,13 +48,14 @@ describe('applyPrefs (the account wins)', () => {
   })
 
   it('can turn a choice back to its default', () => {
-    applyPrefs({ text: 'largest', theme: 'dark', motion: 'calm', width: 'full', read: 'on' })
-    applyPrefs({ text: 'normal', theme: 'auto', motion: 'normal', width: 'calm', read: 'off' })
+    applyPrefs({ text: 'largest', theme: 'dark', motion: 'calm', width: 'full', read: 'on', plain: 'off' })
+    applyPrefs({ text: 'normal', theme: 'auto', motion: 'normal', width: 'calm', read: 'off', plain: 'auto' })
     expect(devicePrefs()).toEqual(DEFAULTS)
+    expect(localStorage.getItem('vwb_plain')).toBeNull()
   })
 
   it('ignores values the app does not know', () => {
-    applyPrefs({ text: 'gigantic', theme: 'neon', motion: 'wild', lang: 'fr', width: 'huge', read: 'loud' })
+    applyPrefs({ text: 'gigantic', theme: 'neon', motion: 'wild', lang: 'fr', width: 'huge', read: 'loud', plain: 'fancy' })
     expect(devicePrefs()).toEqual(DEFAULTS)
     expect(document.documentElement.dataset.theme).toBeUndefined()
   })
