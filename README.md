@@ -30,10 +30,12 @@ Getting started:
 
 1. Copy (fork) this repository.
 2. Run `npm install`.
-3. Make a `.env` file with your own keys: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Optional: `VITE_TURNSTILE_SITE_KEY` (spam protection) and `VITE_VAPID_PUBLIC_KEY` (push notifications).
+3. Copy `example.env` to `.env` and fill in your own keys. See [Getting started](docs/getting-started.md).
 4. Run `npm run dev` and open `http://localhost:5173`.
 
 Please give your village its own name and logo. See "Name and logo" below.
+
+Want to help build VWB? See [CONTRIBUTING](CONTRIBUTING.md) and the [guides for developers](docs/README.md).
 
 If you get stuck or want to work together, reach out to us. We would love to hear about your village.
 

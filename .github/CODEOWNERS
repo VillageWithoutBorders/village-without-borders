@@ -1,0 +1,11 @@
+# These parts keep people safe. A change to them always asks for a maintainer's review.
+# (GitHub uses this list once "Require review from Code Owners" is turned on for main.)
+
+/supabase/            @VWB-founder
+/functions/           @VWB-founder
+/public/_headers      @VWB-founder
+/scripts/csp-hashes.mjs @VWB-founder
+/src/lib/             @VWB-founder
+/src/supabaseClient.js @VWB-founder
+/.github/             @VWB-founder
+/docs/privacy-and-security.md @VWB-founder
